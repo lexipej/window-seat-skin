@@ -3,7 +3,7 @@
 A Video.js v10 skin for footage shot from orbit. Its accent colour and seek bar follow the sun at the station's position, computed from orbital data rather than sampled from the picture.
 
 - **Live demo:** https://window-seat-red.vercel.app
-- **Video on Mux**, public playback ID: `1kG49M02781QDM00hwI6ep1PgFyT8OUSD8cfsAlFvBEWQ` (five more passes are listed in [site/src/clips.ts](site/src/clips.ts))
+- **Video on Mux**, public playback ID: `enqF7Kn02rTtKprBBbkfh2Mp8zf6cV2sUxuqRE01JAhXo` (the pass the demo opens on; five more are listed in [site/src/clips.ts](site/src/clips.ts))
 - Entry for the [Video.js Skins Design Challenge](https://contra.com/community/topic/videojsskinschallenge)
 
 ## What it does
