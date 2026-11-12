@@ -1,0 +1,1202 @@
+{
+  "id": "iss075-e-25398-29083",
+  "title": "Brazil to Kazakhstan, day",
+  "source": "https://eol.jsc.nasa.gov/BeyondThePhotography/CrewEarthObservationsVideos/AutomaticallyGenerated/ISS075-E-25398-29083-20260727-Day.mp4",
+  "page": "https://eol.jsc.nasa.gov/BeyondThePhotography/CrewEarthObservationsVideos/AutomaticallyGenerated/AutomaticallyGeneratedVideos.pl?year=2026",
+  "trim": null,
+  "duration": 147.44,
+  "samples": [
+    {
+      "videoTime": 0,
+      "utc": "2026-07-27T13:41:27Z",
+      "lat": -6.7,
+      "lon": -55.7,
+      "altKm": 415,
+      "frame": 25398
+    },
+    {
+      "videoTime": 1,
+      "utc": "2026-07-27T13:41:39Z",
+      "lat": -6.1,
+      "lon": -55.2,
+      "altKm": 415,
+      "frame": 25423
+    },
+    {
+      "videoTime": 2,
+      "utc": "2026-07-27T13:41:52Z",
+      "lat": -5.4,
+      "lon": -54.7,
+      "altKm": 415,
+      "frame": 25448
+    },
+    {
+      "videoTime": 3,
+      "utc": "2026-07-27T13:42:04Z",
+      "lat": -4.8,
+      "lon": -54.3,
+      "altKm": 415,
+      "frame": 25473
+    },
+    {
+      "videoTime": 4,
+      "utc": "2026-07-27T13:42:16Z",
+      "lat": -4.2,
+      "lon": -53.9,
+      "altKm": 415,
+      "frame": 25498
+    },
+    {
+      "videoTime": 5,
+      "utc": "2026-07-27T13:42:29Z",
+      "lat": -3.5,
+      "lon": -53.4,
+      "altKm": 415,
+      "frame": 25523
+    },
+    {
+      "videoTime": 6,
+      "utc": "2026-07-27T13:42:41Z",
+      "lat": -2.9,
+      "lon": -53,
+      "altKm": 415,
+      "frame": 25548
+    },
+    {
+      "videoTime": 7,
+      "utc": "2026-07-27T13:42:54Z",
+      "lat": -2.2,
+      "lon": -52.5,
+      "altKm": 415,
+      "frame": 25573
+    },
+    {
+      "videoTime": 8,
+      "utc": "2026-07-27T13:43:06Z",
+      "lat": -1.6,
+      "lon": -52.1,
+      "altKm": 415,
+      "frame": 25598
+    },
+    {
+      "videoTime": 9,
+      "utc": "2026-07-27T13:43:19Z",
+      "lat": -1,
+      "lon": -51.6,
+      "altKm": 415,
+      "frame": 25623
+    },
+    {
+      "videoTime": 10,
+      "utc": "2026-07-27T13:43:32Z",
+      "lat": -0.3,
+      "lon": -51.1,
+      "altKm": 415,
+      "frame": 25648
+    },
+    {
+      "videoTime": 11,
+      "utc": "2026-07-27T13:43:44Z",
+      "lat": 0.3,
+      "lon": -50.7,
+      "altKm": 415,
+      "frame": 25673
+    },
+    {
+      "videoTime": 12,
+      "utc": "2026-07-27T13:43:56Z",
+      "lat": 0.9,
+      "lon": -50.3,
+      "altKm": 415,
+      "frame": 25698
+    },
+    {
+      "videoTime": 13,
+      "utc": "2026-07-27T13:44:09Z",
+      "lat": 1.6,
+      "lon": -49.8,
+      "altKm": 415,
+      "frame": 25723
+    },
+    {
+      "videoTime": 14,
+      "utc": "2026-07-27T13:44:21Z",
+      "lat": 2.2,
+      "lon": -49.4,
+      "altKm": 415,
+      "frame": 25748
+    },
+    {
+      "videoTime": 15,
+      "utc": "2026-07-27T13:44:34Z",
+      "lat": 2.9,
+      "lon": -48.9,
+      "altKm": 415,
+      "frame": 25773
+    },
+    {
+      "videoTime": 16,
+      "utc": "2026-07-27T13:44:46Z",
+      "lat": 3.5,
+      "lon": -48.5,
+      "altKm": 415,
+      "frame": 25798
+    },
+    {
+      "videoTime": 17,
+      "utc": "2026-07-27T13:44:59Z",
+      "lat": 4.1,
+      "lon": -48,
+      "altKm": 415,
+      "frame": 25823
+    },
+    {
+      "videoTime": 18,
+      "utc": "2026-07-27T13:45:11Z",
+      "lat": 4.7,
+      "lon": -47.6,
+      "altKm": 415,
+      "frame": 25848
+    },
+    {
+      "videoTime": 19,
+      "utc": "2026-07-27T13:45:24Z",
+      "lat": 5.4,
+      "lon": -47.1,
+      "altKm": 415,
+      "frame": 25873
+    },
+    {
+      "videoTime": 20,
+      "utc": "2026-07-27T13:45:36Z",
+      "lat": 6,
+      "lon": -46.7,
+      "altKm": 415,
+      "frame": 25898
+    },
+    {
+      "videoTime": 21,
+      "utc": "2026-07-27T13:45:49Z",
+      "lat": 6.7,
+      "lon": -46.2,
+      "altKm": 415,
+      "frame": 25923
+    },
+    {
+      "videoTime": 22,
+      "utc": "2026-07-27T13:46:02Z",
+      "lat": 7.3,
+      "lon": -45.7,
+      "altKm": 415,
+      "frame": 25948
+    },
+    {
+      "videoTime": 23,
+      "utc": "2026-07-27T13:46:14Z",
+      "lat": 7.9,
+      "lon": -45.3,
+      "altKm": 415,
+      "frame": 25973
+    },
+    {
+      "videoTime": 24,
+      "utc": "2026-07-27T13:46:26Z",
+      "lat": 8.5,
+      "lon": -44.8,
+      "altKm": 415,
+      "frame": 25998
+    },
+    {
+      "videoTime": 25,
+      "utc": "2026-07-27T13:46:39Z",
+      "lat": 9.2,
+      "lon": -44.4,
+      "altKm": 415,
+      "frame": 26023
+    },
+    {
+      "videoTime": 26,
+      "utc": "2026-07-27T13:46:51Z",
+      "lat": 9.8,
+      "lon": -43.9,
+      "altKm": 415,
+      "frame": 26048
+    },
+    {
+      "videoTime": 27,
+      "utc": "2026-07-27T13:47:04Z",
+      "lat": 10.5,
+      "lon": -43.4,
+      "altKm": 415,
+      "frame": 26073
+    },
+    {
+      "videoTime": 28,
+      "utc": "2026-07-27T13:47:16Z",
+      "lat": 11.1,
+      "lon": -43,
+      "altKm": 415,
+      "frame": 26098
+    },
+    {
+      "videoTime": 29,
+      "utc": "2026-07-27T13:47:29Z",
+      "lat": 11.7,
+      "lon": -42.5,
+      "altKm": 413,
+      "frame": 26123
+    },
+    {
+      "videoTime": 30,
+      "utc": "2026-07-27T13:47:41Z",
+      "lat": 12.3,
+      "lon": -42,
+      "altKm": 413,
+      "frame": 26148
+    },
+    {
+      "videoTime": 31,
+      "utc": "2026-07-27T13:47:54Z",
+      "lat": 13,
+      "lon": -41.5,
+      "altKm": 413,
+      "frame": 26173
+    },
+    {
+      "videoTime": 32,
+      "utc": "2026-07-27T13:48:06Z",
+      "lat": 13.6,
+      "lon": -41.1,
+      "altKm": 413,
+      "frame": 26198
+    },
+    {
+      "videoTime": 33,
+      "utc": "2026-07-27T13:48:19Z",
+      "lat": 14.2,
+      "lon": -40.6,
+      "altKm": 413,
+      "frame": 26223
+    },
+    {
+      "videoTime": 34,
+      "utc": "2026-07-27T13:48:31Z",
+      "lat": 14.8,
+      "lon": -40.1,
+      "altKm": 413,
+      "frame": 26248
+    },
+    {
+      "videoTime": 35,
+      "utc": "2026-07-27T13:48:44Z",
+      "lat": 15.5,
+      "lon": -39.6,
+      "altKm": 413,
+      "frame": 26273
+    },
+    {
+      "videoTime": 36,
+      "utc": "2026-07-27T13:48:56Z",
+      "lat": 16.1,
+      "lon": -39.1,
+      "altKm": 413,
+      "frame": 26298
+    },
+    {
+      "videoTime": 37,
+      "utc": "2026-07-27T13:49:09Z",
+      "lat": 16.7,
+      "lon": -38.6,
+      "altKm": 413,
+      "frame": 26323
+    },
+    {
+      "videoTime": 38,
+      "utc": "2026-07-27T13:49:21Z",
+      "lat": 17.3,
+      "lon": -38.2,
+      "altKm": 413,
+      "frame": 26348
+    },
+    {
+      "videoTime": 39,
+      "utc": "2026-07-27T13:49:34Z",
+      "lat": 18,
+      "lon": -37.6,
+      "altKm": 413,
+      "frame": 26373
+    },
+    {
+      "videoTime": 40,
+      "utc": "2026-07-27T13:49:46Z",
+      "lat": 18.6,
+      "lon": -37.2,
+      "altKm": 413,
+      "frame": 26398
+    },
+    {
+      "videoTime": 41,
+      "utc": "2026-07-27T13:49:59Z",
+      "lat": 19.2,
+      "lon": -36.6,
+      "altKm": 413,
+      "frame": 26423
+    },
+    {
+      "videoTime": 42,
+      "utc": "2026-07-27T13:50:11Z",
+      "lat": 19.8,
+      "lon": -36.1,
+      "altKm": 413,
+      "frame": 26448
+    },
+    {
+      "videoTime": 43,
+      "utc": "2026-07-27T13:50:24Z",
+      "lat": 20.4,
+      "lon": -35.6,
+      "altKm": 413,
+      "frame": 26473
+    },
+    {
+      "videoTime": 44,
+      "utc": "2026-07-27T13:50:36Z",
+      "lat": 21,
+      "lon": -35.1,
+      "altKm": 413,
+      "frame": 26498
+    },
+    {
+      "videoTime": 45,
+      "utc": "2026-07-27T13:50:49Z",
+      "lat": 21.6,
+      "lon": -34.6,
+      "altKm": 413,
+      "frame": 26523
+    },
+    {
+      "videoTime": 46,
+      "utc": "2026-07-27T13:51:02Z",
+      "lat": 22.3,
+      "lon": -34,
+      "altKm": 413,
+      "frame": 26548
+    },
+    {
+      "videoTime": 47,
+      "utc": "2026-07-27T13:51:14Z",
+      "lat": 22.8,
+      "lon": -33.5,
+      "altKm": 413,
+      "frame": 26573
+    },
+    {
+      "videoTime": 48,
+      "utc": "2026-07-27T13:51:26Z",
+      "lat": 23.4,
+      "lon": -33,
+      "altKm": 413,
+      "frame": 26598
+    },
+    {
+      "videoTime": 49,
+      "utc": "2026-07-27T13:51:39Z",
+      "lat": 24,
+      "lon": -32.4,
+      "altKm": 413,
+      "frame": 26623
+    },
+    {
+      "videoTime": 50,
+      "utc": "2026-07-27T13:51:51Z",
+      "lat": 24.6,
+      "lon": -31.9,
+      "altKm": 413,
+      "frame": 26648
+    },
+    {
+      "videoTime": 51,
+      "utc": "2026-07-27T13:52:04Z",
+      "lat": 25.2,
+      "lon": -31.3,
+      "altKm": 413,
+      "frame": 26673
+    },
+    {
+      "videoTime": 52,
+      "utc": "2026-07-27T13:52:16Z",
+      "lat": 25.8,
+      "lon": -30.8,
+      "altKm": 413,
+      "frame": 26698
+    },
+    {
+      "videoTime": 53,
+      "utc": "2026-07-27T13:52:29Z",
+      "lat": 26.4,
+      "lon": -30.2,
+      "altKm": 413,
+      "frame": 26723
+    },
+    {
+      "videoTime": 54,
+      "utc": "2026-07-27T13:52:41Z",
+      "lat": 27,
+      "lon": -29.6,
+      "altKm": 413,
+      "frame": 26748
+    },
+    {
+      "videoTime": 55,
+      "utc": "2026-07-27T13:52:54Z",
+      "lat": 27.6,
+      "lon": -29,
+      "altKm": 413,
+      "frame": 26773
+    },
+    {
+      "videoTime": 56,
+      "utc": "2026-07-27T13:53:06Z",
+      "lat": 28.1,
+      "lon": -28.4,
+      "altKm": 413,
+      "frame": 26798
+    },
+    {
+      "videoTime": 57,
+      "utc": "2026-07-27T13:53:19Z",
+      "lat": 28.7,
+      "lon": -27.8,
+      "altKm": 413,
+      "frame": 26823
+    },
+    {
+      "videoTime": 58,
+      "utc": "2026-07-27T13:53:31Z",
+      "lat": 29.3,
+      "lon": -27.3,
+      "altKm": 413,
+      "frame": 26848
+    },
+    {
+      "videoTime": 59,
+      "utc": "2026-07-27T13:53:44Z",
+      "lat": 29.9,
+      "lon": -26.6,
+      "altKm": 413,
+      "frame": 26873
+    },
+    {
+      "videoTime": 60,
+      "utc": "2026-07-27T13:53:56Z",
+      "lat": 30.4,
+      "lon": -26,
+      "altKm": 413,
+      "frame": 26898
+    },
+    {
+      "videoTime": 61,
+      "utc": "2026-07-27T13:54:09Z",
+      "lat": 31,
+      "lon": -25.4,
+      "altKm": 413,
+      "frame": 26923
+    },
+    {
+      "videoTime": 62,
+      "utc": "2026-07-27T13:54:21Z",
+      "lat": 31.5,
+      "lon": -24.8,
+      "altKm": 413,
+      "frame": 26948
+    },
+    {
+      "videoTime": 63,
+      "utc": "2026-07-27T13:54:34Z",
+      "lat": 32.1,
+      "lon": -24.1,
+      "altKm": 413,
+      "frame": 26973
+    },
+    {
+      "videoTime": 64,
+      "utc": "2026-07-27T13:54:46Z",
+      "lat": 32.6,
+      "lon": -23.5,
+      "altKm": 413,
+      "frame": 26998
+    },
+    {
+      "videoTime": 65,
+      "utc": "2026-07-27T13:54:59Z",
+      "lat": 33.2,
+      "lon": -22.8,
+      "altKm": 413,
+      "frame": 27023
+    },
+    {
+      "videoTime": 66,
+      "utc": "2026-07-27T13:55:11Z",
+      "lat": 33.7,
+      "lon": -22.2,
+      "altKm": 413,
+      "frame": 27048
+    },
+    {
+      "videoTime": 67,
+      "utc": "2026-07-27T13:55:24Z",
+      "lat": 34.3,
+      "lon": -21.5,
+      "altKm": 413,
+      "frame": 27073
+    },
+    {
+      "videoTime": 68,
+      "utc": "2026-07-27T13:55:36Z",
+      "lat": 34.8,
+      "lon": -20.8,
+      "altKm": 413,
+      "frame": 27098
+    },
+    {
+      "videoTime": 69,
+      "utc": "2026-07-27T13:55:49Z",
+      "lat": 35.3,
+      "lon": -20.1,
+      "altKm": 413,
+      "frame": 27123
+    },
+    {
+      "videoTime": 70,
+      "utc": "2026-07-27T13:56:01Z",
+      "lat": 35.9,
+      "lon": -19.4,
+      "altKm": 413,
+      "frame": 27148
+    },
+    {
+      "videoTime": 71,
+      "utc": "2026-07-27T13:56:14Z",
+      "lat": 36.4,
+      "lon": -18.7,
+      "altKm": 413,
+      "frame": 27173
+    },
+    {
+      "videoTime": 72,
+      "utc": "2026-07-27T13:56:26Z",
+      "lat": 36.9,
+      "lon": -18,
+      "altKm": 413,
+      "frame": 27198
+    },
+    {
+      "videoTime": 73,
+      "utc": "2026-07-27T13:56:39Z",
+      "lat": 37.4,
+      "lon": -17.2,
+      "altKm": 413,
+      "frame": 27223
+    },
+    {
+      "videoTime": 74,
+      "utc": "2026-07-27T13:56:51Z",
+      "lat": 37.9,
+      "lon": -16.5,
+      "altKm": 413,
+      "frame": 27248
+    },
+    {
+      "videoTime": 75,
+      "utc": "2026-07-27T13:57:04Z",
+      "lat": 38.4,
+      "lon": -15.7,
+      "altKm": 413,
+      "frame": 27273
+    },
+    {
+      "videoTime": 76,
+      "utc": "2026-07-27T13:57:16Z",
+      "lat": 38.9,
+      "lon": -15,
+      "altKm": 413,
+      "frame": 27298
+    },
+    {
+      "videoTime": 77,
+      "utc": "2026-07-27T13:57:29Z",
+      "lat": 39.4,
+      "lon": -14.2,
+      "altKm": 413,
+      "frame": 27323
+    },
+    {
+      "videoTime": 78,
+      "utc": "2026-07-27T13:57:41Z",
+      "lat": 39.9,
+      "lon": -13.4,
+      "altKm": 411,
+      "frame": 27348
+    },
+    {
+      "videoTime": 79,
+      "utc": "2026-07-27T13:57:54Z",
+      "lat": 40.4,
+      "lon": -12.6,
+      "altKm": 411,
+      "frame": 27373
+    },
+    {
+      "videoTime": 80,
+      "utc": "2026-07-27T13:58:06Z",
+      "lat": 40.8,
+      "lon": -11.8,
+      "altKm": 411,
+      "frame": 27398
+    },
+    {
+      "videoTime": 81,
+      "utc": "2026-07-27T13:58:19Z",
+      "lat": 41.3,
+      "lon": -10.9,
+      "altKm": 411,
+      "frame": 27423
+    },
+    {
+      "videoTime": 82,
+      "utc": "2026-07-27T13:58:31Z",
+      "lat": 41.7,
+      "lon": -10.1,
+      "altKm": 411,
+      "frame": 27448
+    },
+    {
+      "videoTime": 83,
+      "utc": "2026-07-27T13:58:44Z",
+      "lat": 42.2,
+      "lon": -9.2,
+      "altKm": 411,
+      "frame": 27473
+    },
+    {
+      "videoTime": 84,
+      "utc": "2026-07-27T13:58:56Z",
+      "lat": 42.6,
+      "lon": -8.4,
+      "altKm": 411,
+      "frame": 27498
+    },
+    {
+      "videoTime": 85,
+      "utc": "2026-07-27T13:59:09Z",
+      "lat": 43.1,
+      "lon": -7.5,
+      "altKm": 411,
+      "frame": 27523
+    },
+    {
+      "videoTime": 86,
+      "utc": "2026-07-27T13:59:21Z",
+      "lat": 43.5,
+      "lon": -6.6,
+      "altKm": 411,
+      "frame": 27548
+    },
+    {
+      "videoTime": 87,
+      "utc": "2026-07-27T13:59:34Z",
+      "lat": 43.9,
+      "lon": -5.7,
+      "altKm": 411,
+      "frame": 27573
+    },
+    {
+      "videoTime": 88,
+      "utc": "2026-07-27T13:59:46Z",
+      "lat": 44.3,
+      "lon": -4.8,
+      "altKm": 411,
+      "frame": 27598
+    },
+    {
+      "videoTime": 89,
+      "utc": "2026-07-27T13:59:59Z",
+      "lat": 44.7,
+      "lon": -3.9,
+      "altKm": 411,
+      "frame": 27623
+    },
+    {
+      "videoTime": 90,
+      "utc": "2026-07-27T14:00:12Z",
+      "lat": 45.1,
+      "lon": -2.9,
+      "altKm": 411,
+      "frame": 27648
+    },
+    {
+      "videoTime": 91,
+      "utc": "2026-07-27T14:00:24Z",
+      "lat": 45.5,
+      "lon": -2,
+      "altKm": 411,
+      "frame": 27673
+    },
+    {
+      "videoTime": 92,
+      "utc": "2026-07-27T14:00:36Z",
+      "lat": 45.9,
+      "lon": -1,
+      "altKm": 411,
+      "frame": 27698
+    },
+    {
+      "videoTime": 93,
+      "utc": "2026-07-27T14:00:49Z",
+      "lat": 46.2,
+      "lon": 0,
+      "altKm": 413,
+      "frame": 27723
+    },
+    {
+      "videoTime": 94,
+      "utc": "2026-07-27T14:01:01Z",
+      "lat": 46.6,
+      "lon": 0.9,
+      "altKm": 413,
+      "frame": 27748
+    },
+    {
+      "videoTime": 95,
+      "utc": "2026-07-27T14:01:14Z",
+      "lat": 46.9,
+      "lon": 2,
+      "altKm": 413,
+      "frame": 27773
+    },
+    {
+      "videoTime": 96,
+      "utc": "2026-07-27T14:01:26Z",
+      "lat": 47.3,
+      "lon": 3,
+      "altKm": 413,
+      "frame": 27798
+    },
+    {
+      "videoTime": 97,
+      "utc": "2026-07-27T14:01:39Z",
+      "lat": 47.6,
+      "lon": 4.1,
+      "altKm": 413,
+      "frame": 27823
+    },
+    {
+      "videoTime": 98,
+      "utc": "2026-07-27T14:01:51Z",
+      "lat": 47.9,
+      "lon": 5.1,
+      "altKm": 413,
+      "frame": 27848
+    },
+    {
+      "videoTime": 99,
+      "utc": "2026-07-27T14:02:04Z",
+      "lat": 48.2,
+      "lon": 6.2,
+      "altKm": 413,
+      "frame": 27873
+    },
+    {
+      "videoTime": 100,
+      "utc": "2026-07-27T14:02:16Z",
+      "lat": 48.5,
+      "lon": 7.2,
+      "altKm": 413,
+      "frame": 27898
+    },
+    {
+      "videoTime": 101,
+      "utc": "2026-07-27T14:02:29Z",
+      "lat": 48.8,
+      "lon": 8.3,
+      "altKm": 413,
+      "frame": 27923
+    },
+    {
+      "videoTime": 102,
+      "utc": "2026-07-27T14:02:41Z",
+      "lat": 49.1,
+      "lon": 9.4,
+      "altKm": 413,
+      "frame": 27948
+    },
+    {
+      "videoTime": 103,
+      "utc": "2026-07-27T14:02:54Z",
+      "lat": 49.3,
+      "lon": 10.6,
+      "altKm": 413,
+      "frame": 27973
+    },
+    {
+      "videoTime": 104,
+      "utc": "2026-07-27T14:03:06Z",
+      "lat": 49.6,
+      "lon": 11.6,
+      "altKm": 413,
+      "frame": 27998
+    },
+    {
+      "videoTime": 105,
+      "utc": "2026-07-27T14:03:19Z",
+      "lat": 49.8,
+      "lon": 12.8,
+      "altKm": 413,
+      "frame": 28023
+    },
+    {
+      "videoTime": 106,
+      "utc": "2026-07-27T14:03:31Z",
+      "lat": 50,
+      "lon": 13.9,
+      "altKm": 413,
+      "frame": 28048
+    },
+    {
+      "videoTime": 107,
+      "utc": "2026-07-27T14:03:44Z",
+      "lat": 50.3,
+      "lon": 15.1,
+      "altKm": 413,
+      "frame": 28073
+    },
+    {
+      "videoTime": 108,
+      "utc": "2026-07-27T14:03:56Z",
+      "lat": 50.4,
+      "lon": 16.3,
+      "altKm": 413,
+      "frame": 28098
+    },
+    {
+      "videoTime": 109,
+      "utc": "2026-07-27T14:04:09Z",
+      "lat": 50.6,
+      "lon": 17.5,
+      "altKm": 413,
+      "frame": 28123
+    },
+    {
+      "videoTime": 110,
+      "utc": "2026-07-27T14:04:21Z",
+      "lat": 50.8,
+      "lon": 18.6,
+      "altKm": 413,
+      "frame": 28148
+    },
+    {
+      "videoTime": 111,
+      "utc": "2026-07-27T14:04:34Z",
+      "lat": 51,
+      "lon": 19.9,
+      "altKm": 413,
+      "frame": 28173
+    },
+    {
+      "videoTime": 112,
+      "utc": "2026-07-27T14:04:46Z",
+      "lat": 51.1,
+      "lon": 21,
+      "altKm": 413,
+      "frame": 28198
+    },
+    {
+      "videoTime": 113,
+      "utc": "2026-07-27T14:04:59Z",
+      "lat": 51.2,
+      "lon": 22.3,
+      "altKm": 413,
+      "frame": 28223
+    },
+    {
+      "videoTime": 114,
+      "utc": "2026-07-27T14:05:11Z",
+      "lat": 51.4,
+      "lon": 23.5,
+      "altKm": 413,
+      "frame": 28248
+    },
+    {
+      "videoTime": 115,
+      "utc": "2026-07-27T14:05:24Z",
+      "lat": 51.5,
+      "lon": 24.7,
+      "altKm": 413,
+      "frame": 28273
+    },
+    {
+      "videoTime": 116,
+      "utc": "2026-07-27T14:05:36Z",
+      "lat": 51.5,
+      "lon": 25.9,
+      "altKm": 413,
+      "frame": 28298
+    },
+    {
+      "videoTime": 117,
+      "utc": "2026-07-27T14:05:49Z",
+      "lat": 51.6,
+      "lon": 27.2,
+      "altKm": 413,
+      "frame": 28323
+    },
+    {
+      "videoTime": 118,
+      "utc": "2026-07-27T14:06:01Z",
+      "lat": 51.7,
+      "lon": 28.4,
+      "altKm": 413,
+      "frame": 28348
+    },
+    {
+      "videoTime": 119,
+      "utc": "2026-07-27T14:06:14Z",
+      "lat": 51.7,
+      "lon": 29.7,
+      "altKm": 413,
+      "frame": 28373
+    },
+    {
+      "videoTime": 120,
+      "utc": "2026-07-27T14:06:26Z",
+      "lat": 51.8,
+      "lon": 30.9,
+      "altKm": 413,
+      "frame": 28398
+    },
+    {
+      "videoTime": 121,
+      "utc": "2026-07-27T14:06:39Z",
+      "lat": 51.8,
+      "lon": 32.2,
+      "altKm": 413,
+      "frame": 28423
+    },
+    {
+      "videoTime": 122,
+      "utc": "2026-07-27T14:06:51Z",
+      "lat": 51.8,
+      "lon": 33.4,
+      "altKm": 413,
+      "frame": 28448
+    },
+    {
+      "videoTime": 123,
+      "utc": "2026-07-27T14:07:04Z",
+      "lat": 51.8,
+      "lon": 34.7,
+      "altKm": 413,
+      "frame": 28473
+    },
+    {
+      "videoTime": 124,
+      "utc": "2026-07-27T14:07:16Z",
+      "lat": 51.8,
+      "lon": 35.9,
+      "altKm": 413,
+      "frame": 28498
+    },
+    {
+      "videoTime": 125,
+      "utc": "2026-07-27T14:07:29Z",
+      "lat": 51.7,
+      "lon": 37.2,
+      "altKm": 413,
+      "frame": 28523
+    },
+    {
+      "videoTime": 126,
+      "utc": "2026-07-27T14:07:41Z",
+      "lat": 51.7,
+      "lon": 38.4,
+      "altKm": 413,
+      "frame": 28548
+    },
+    {
+      "videoTime": 127,
+      "utc": "2026-07-27T14:07:54Z",
+      "lat": 51.6,
+      "lon": 39.7,
+      "altKm": 413,
+      "frame": 28573
+    },
+    {
+      "videoTime": 128,
+      "utc": "2026-07-27T14:08:07Z",
+      "lat": 51.5,
+      "lon": 40.9,
+      "altKm": 413,
+      "frame": 28598
+    },
+    {
+      "videoTime": 129,
+      "utc": "2026-07-27T14:08:19Z",
+      "lat": 51.4,
+      "lon": 42.1,
+      "altKm": 413,
+      "frame": 28623
+    },
+    {
+      "videoTime": 130,
+      "utc": "2026-07-27T14:08:32Z",
+      "lat": 51.3,
+      "lon": 43.4,
+      "altKm": 413,
+      "frame": 28648
+    },
+    {
+      "videoTime": 131,
+      "utc": "2026-07-27T14:08:44Z",
+      "lat": 51.2,
+      "lon": 44.6,
+      "altKm": 415,
+      "frame": 28673
+    },
+    {
+      "videoTime": 132,
+      "utc": "2026-07-27T14:08:57Z",
+      "lat": 51,
+      "lon": 45.8,
+      "altKm": 415,
+      "frame": 28698
+    },
+    {
+      "videoTime": 133,
+      "utc": "2026-07-27T14:09:09Z",
+      "lat": 50.9,
+      "lon": 47,
+      "altKm": 415,
+      "frame": 28723
+    },
+    {
+      "videoTime": 134,
+      "utc": "2026-07-27T14:09:22Z",
+      "lat": 50.7,
+      "lon": 48.2,
+      "altKm": 415,
+      "frame": 28748
+    },
+    {
+      "videoTime": 135,
+      "utc": "2026-07-27T14:09:34Z",
+      "lat": 50.6,
+      "lon": 49.4,
+      "altKm": 415,
+      "frame": 28773
+    },
+    {
+      "videoTime": 136,
+      "utc": "2026-07-27T14:09:47Z",
+      "lat": 50.4,
+      "lon": 50.6,
+      "altKm": 415,
+      "frame": 28798
+    },
+    {
+      "videoTime": 137,
+      "utc": "2026-07-27T14:09:59Z",
+      "lat": 50.2,
+      "lon": 51.7,
+      "altKm": 415,
+      "frame": 28823
+    },
+    {
+      "videoTime": 138,
+      "utc": "2026-07-27T14:10:12Z",
+      "lat": 49.9,
+      "lon": 52.9,
+      "altKm": 415,
+      "frame": 28848
+    },
+    {
+      "videoTime": 139,
+      "utc": "2026-07-27T14:10:24Z",
+      "lat": 49.7,
+      "lon": 54,
+      "altKm": 415,
+      "frame": 28873
+    },
+    {
+      "videoTime": 140,
+      "utc": "2026-07-27T14:10:36Z",
+      "lat": 49.5,
+      "lon": 55.1,
+      "altKm": 415,
+      "frame": 28898
+    },
+    {
+      "videoTime": 141,
+      "utc": "2026-07-27T14:10:49Z",
+      "lat": 49.2,
+      "lon": 56.3,
+      "altKm": 415,
+      "frame": 28923
+    },
+    {
+      "videoTime": 142,
+      "utc": "2026-07-27T14:11:02Z",
+      "lat": 49,
+      "lon": 57.4,
+      "altKm": 415,
+      "frame": 28948
+    },
+    {
+      "videoTime": 143,
+      "utc": "2026-07-27T14:11:14Z",
+      "lat": 48.7,
+      "lon": 58.5,
+      "altKm": 415,
+      "frame": 28973
+    },
+    {
+      "videoTime": 144,
+      "utc": "2026-07-27T14:11:27Z",
+      "lat": 48.4,
+      "lon": 59.6,
+      "altKm": 415,
+      "frame": 28998
+    },
+    {
+      "videoTime": 145,
+      "utc": "2026-07-27T14:11:39Z",
+      "lat": 48.1,
+      "lon": 60.6,
+      "altKm": 415,
+      "frame": 29023
+    },
+    {
+      "videoTime": 146,
+      "utc": "2026-07-27T14:11:51Z",
+      "lat": 47.8,
+      "lon": 61.6,
+      "altKm": 415,
+      "frame": 29048
+    },
+    {
+      "videoTime": 147,
+      "utc": "2026-07-27T14:12:04Z",
+      "lat": 47.5,
+      "lon": 62.7,
+      "altKm": 415,
+      "frame": 29073
+    },
+    {
+      "videoTime": 147.4,
+      "utc": "2026-07-27T14:12:09Z",
+      "lat": 47.3,
+      "lon": 63.1,
+      "altKm": 415,
+      "frame": 29083
+    }
+  ]
+}

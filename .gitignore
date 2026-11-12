@@ -1,0 +1,20 @@
+node_modules
+dist
+output/
+*.local
+.DS_Store
+
+# Secrets (Mux tokens and the like). Playback IDs are public; signing keys and API tokens are not.
+.env
+.env.*
+
+# Hosting CLIs
+.vercel
+.netlify
+.wrangler
+
+# Raw downloads from NASA (large); keep only generated data in the repo.
+data/raw
+
+# Local logs
+*.log

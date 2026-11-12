@@ -1,0 +1,11 @@
+{
+  "name": "window-seat-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "screen": "cd .. && bun tools/screen-clips.ts",
+    "orbit": "cd .. && bun tools/fetch-orbit.ts",
+    "places": "cd .. && bun tools/make-places.ts",
+    "data": "cd .. && bun tools/fetch-orbit.ts && bun tools/make-places.ts"
+  }
+}

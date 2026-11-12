@@ -1,0 +1,1557 @@
+/*
+ * Window Seat, "One orbit". The page is the sky at the station's position and the player is the window.
+ * Colours, radii, type and easing mirror the skin's tokens (skin/src/styles/themes/window-seat.css).
+ * Sky weights (--sky-day / --sky-dusk / --sky-night, 0–1) are written by sky.ts from the sun's elevation.
+ */
+
+@property --page-accent { syntax: "<color>"; inherits: true; initial-value: #5ef0b5; }
+
+:root {
+  color-scheme: dark;
+
+  --site-ink: #f4f6fb;
+  --site-ink-muted: #c9cfdc;
+  --site-ink-faint: #8d96ab;
+  --site-accent-ink: #10131c;
+  --site-popover: #111623;
+  --site-day-accent: #ffc247;
+  --site-twilight-accent: #ff8a70;
+  --site-night-accent: #5ef0b5;
+  /* Names used by strip.ts for the day/night strips. */
+  --site-pass-day: #6ccbff;
+  --site-pass-night: #8074f2;
+  --site-terminator: #fff6d6;
+  --aurora-green: #5cf2a6;
+  --aurora-violet: #9d7bff;
+  --hairline: color-mix(in oklab, var(--site-ink) 14%, transparent);
+  --edge: rgb(255 255 255 / 0.12);
+
+  --space: #04060c;
+  --earth: #03050a;
+
+  --r-window: 14px;
+  --r-item: 10px;
+  --r-pill: 999px;
+  --gutter: clamp(1rem, 3.2vw, 2.5rem);
+  --section: clamp(5rem, 11vw, 9rem);
+  --topbar: 3.5rem;
+
+  --font: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+
+  --ease-out: cubic-bezier(0.3, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.4, 0.1, 0.25, 1.3);
+  --dur: 200ms;
+  --dur-sky: 1400ms;
+  --palette: 600ms;
+
+  --page-accent: var(--site-night-accent);
+
+  background: var(--space);
+  color: var(--site-ink);
+  font: 400 1rem/1.55 var(--font);
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--topbar) + 1rem);
+}
+
+/* The page accent is the player's accent: gold by day, coral in twilight, green at night. */
+:root:has(#player-slot media-container[data-daylight="day"]) { --page-accent: var(--site-day-accent); }
+:root:has(#player-slot media-container[data-daylight="twilight"]) { --page-accent: var(--site-twilight-accent); }
+:root:has(#player-slot media-container[data-daylight-transition]) { transition: --page-accent var(--palette) ease-in-out; }
+/* A pinned sky preview (?sun=) shows the accent of that sky. */
+:root[data-sky-forced][data-sky="day"] { --page-accent: var(--site-day-accent) !important; }
+:root[data-sky-forced][data-sky="twilight"] { --page-accent: var(--site-twilight-accent) !important; }
+:root[data-sky-forced][data-sky="night"] { --page-accent: var(--site-night-accent) !important; }
+
+@media (prefers-reduced-motion: no-preference) {
+  :root { scroll-behavior: smooth; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur: 0ms; --dur-sky: 0ms; --palette: 0ms; }
+}
+
+body { margin: 0; overflow-x: clip; }
+
+[hidden] { display: none !important; }
+
+h1, h2, h3, p, dl, dd, figure, ol, ul, pre { margin: 0; }
+ol, ul { padding: 0; list-style: none; }
+
+a {
+  color: var(--page-accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+a:hover { text-decoration-thickness: 2px; }
+
+:focus-visible {
+  outline: 2px solid var(--page-accent);
+  outline-offset: 3px;
+}
+
+#main:focus { outline: none; }
+
+.sr-only,
+.skip-link:not(:focus) {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: fixed;
+  inset: 0.5rem auto auto 0.5rem;
+  z-index: 10;
+  display: inline-grid;
+  place-items: center;
+  min-block-size: 44px;
+  padding-inline: 1rem;
+  border-radius: var(--r-pill);
+  background: var(--page-accent);
+  color: var(--site-accent-ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.mono-label {
+  font: 600 0.6875rem/1.4 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ---------- Scrollbars: thin track, pill thumb in muted ink, accent on hover and drag ---------- */
+
+::-webkit-scrollbar { inline-size: 12px; block-size: 12px; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--site-ink) 34%, transparent) padding-box;
+}
+::-webkit-scrollbar-thumb:hover, ::-webkit-scrollbar-thumb:active { background-color: var(--page-accent); }
+
+/* Browsers without the WebKit pseudo-elements get the standard properties (no hover colour there). */
+@supports not selector(::-webkit-scrollbar) {
+  :root, .stops, .snippet { scrollbar-width: thin; scrollbar-color: color-mix(in oklab, var(--site-ink) 34%, transparent) transparent; }
+}
+
+@media (forced-colors: active) {
+  ::-webkit-scrollbar-thumb { background: CanvasText padding-box; }
+  ::-webkit-scrollbar-thumb:hover, ::-webkit-scrollbar-thumb:active { background: Highlight padding-box; }
+}
+
+/* ---------- Sky: fixed behind everything ---------- */
+
+.sky {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--space);
+}
+
+.sky > * {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  transition: opacity var(--dur-sky) ease-in-out;
+}
+
+/* Deep blue-black by day: the sky from orbit stays dark, only the limb is bright. */
+.sky-tint-day {
+  opacity: var(--sky-day, 0);
+  background: linear-gradient(to bottom, #040817 0%, #06102c 50%, #0b1d48 100%);
+}
+
+.sky-tint-dusk {
+  opacity: var(--sky-dusk, 0);
+  background: linear-gradient(to bottom, #06061a 0%, #140c2a 50%, #2f1434 100%);
+}
+
+.sky-tint-night {
+  opacity: var(--sky-night, 1);
+  background: linear-gradient(to bottom, #020308 0%, #03050d 100%);
+}
+
+.sky-stars { opacity: calc(var(--sky-night, 1) * 0.9 + var(--sky-dusk, 0) * 0.25); }
+
+/* ---------- Top bar ---------- */
+
+.topbar {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 5;
+  background: linear-gradient(to bottom, rgb(4 6 12 / 0.92), rgb(4 6 12 / 0.75));
+  box-shadow: 0 1px 0 var(--hairline);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  box-sizing: border-box;
+  block-size: var(--topbar);
+  padding-inline: var(--gutter);
+}
+
+.wordmark {
+  font-size: 0.9375rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.wordmark span {
+  margin-inline-start: 0.5rem;
+  color: var(--page-accent);
+  font: 600 0.6875rem/1 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.topbar nav { display: flex; gap: 0.25rem; }
+
+.topbar nav a {
+  display: inline-grid;
+  place-items: center;
+  min-block-size: 44px;
+  padding-inline: 0.625rem;
+  color: var(--site-ink-muted);
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: color var(--dur) var(--ease-out);
+}
+
+.topbar nav a:hover { color: var(--site-ink); }
+.topbar nav a:focus-visible { outline-offset: -4px; border-radius: var(--r-item); }
+
+/* ---------- Hero: the window over the horizon ---------- */
+
+.hero {
+  position: relative;
+  /* The window's size: as wide as the viewport and the rails allow, short enough to leave the pass name in view. */
+  --rail: 0rem;
+  --frame: clamp(5px, 0.8vw, 11px);
+  --win-w: min(75rem,
+    calc(100vw - 2 * var(--gutter) - 2 * var(--rail)),
+    max(18rem, calc((100svh - var(--topbar) - 11rem) * 1.5)));
+  --win-h: calc((var(--win-w) - 2 * var(--frame)) / 1.5 + 2 * var(--frame));
+  /* Where the Earth's limb crests: just above the window's bottom edge, so the glow wraps its lower corners. */
+  --crest: calc(var(--win-h) * 0.84);
+  --R: max(150vw, 110rem);
+  isolation: isolate;
+  padding-block-end: clamp(2.5rem, 6vw, 4.5rem);
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "window" "tools" "pass" "telemetry" "track" "about";
+  justify-items: center;
+  row-gap: clamp(1.25rem, 3vw, 2rem);
+  padding-inline: var(--gutter);
+  padding-block-start: 0.25rem;
+}
+
+.horizon {
+  position: absolute;
+  /* Starts under the top bar, so the aurora can rise behind it; --y is the limb's crest in this box. */
+  inset: calc(-1 * var(--topbar)) 0 0;
+  --y: calc(var(--topbar) + 0.25rem + var(--crest));
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  /* The night side of the Earth below the limb; it fades out where the hero ends. */
+  background: radial-gradient(circle at 50% calc(var(--y) + var(--R)), var(--earth) calc(var(--R) - 1px), transparent var(--R));
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 10rem), transparent);
+}
+
+.limb {
+  position: absolute;
+  inset: 0;
+  transition: opacity var(--dur-sky) ease-in-out;
+  --at: circle at 50% calc(var(--y) + var(--R));
+}
+
+/* Day: one bright hairline with blue air above it. */
+.limb-day {
+  opacity: var(--sky-day, 0);
+  background: radial-gradient(var(--at),
+    rgb(110 175 255 / 0) calc(var(--R) - 70px),
+    rgb(110 175 255 / 0.2) calc(var(--R) - 3px),
+    rgb(228 242 255 / 0.95) calc(var(--R) - 1px),
+    rgb(170 214 255 / 0.75) calc(var(--R) + 2px),
+    rgb(90 160 255 / 0.32) calc(var(--R) + 10px),
+    rgb(60 120 240 / 0.12) calc(var(--R) + 42px),
+    rgb(60 120 240 / 0) calc(var(--R) + 120px));
+}
+
+/* Twilight: the layered terminator band seen from orbit, gold on the surface, coral, violet, then night blue. */
+.limb-dusk {
+  opacity: var(--sky-dusk, 0);
+  background: radial-gradient(var(--at),
+    rgb(255 120 70 / 0) calc(var(--R) - 90px),
+    rgb(255 120 70 / 0.24) calc(var(--R) - 4px),
+    rgb(255 214 140 / 0.95) calc(var(--R) - 1px),
+    rgb(255 138 112 / 0.85) calc(var(--R) + 4px),
+    rgb(255 108 96 / 0.45) calc(var(--R) + 11px),
+    rgb(170 90 170 / 0.3) calc(var(--R) + 24px),
+    rgb(90 80 200 / 0.15) calc(var(--R) + 56px),
+    rgb(90 80 200 / 0) calc(var(--R) + 150px));
+}
+
+/* Night: a faint limb and, a little above it, the thin green airglow layer. */
+.limb-night {
+  opacity: var(--sky-night, 1);
+  background: radial-gradient(var(--at),
+    rgb(130 150 200 / 0) calc(var(--R) - 2px),
+    rgb(130 150 200 / 0.28) var(--R),
+    rgb(130 150 200 / 0) calc(var(--R) + 3px),
+    rgb(92 242 166 / 0) calc(var(--R) + 5px),
+    rgb(92 242 166 / 0.5) calc(var(--R) + 7px),
+    rgb(92 242 166 / 0.14) calc(var(--R) + 10px),
+    rgb(92 242 166 / 0) calc(var(--R) + 26px));
+}
+
+.aurora {
+  position: absolute;
+  inset-inline: 0;
+  inset-block-start: calc(var(--y) - min(52vh, 30rem));
+  block-size: min(52vh, 30rem);
+  opacity: calc(var(--sky-night, 1) * 0.85);
+  transition: opacity var(--dur-sky) ease-in-out;
+  mask-image: linear-gradient(to right, transparent, #000 18%, #000 82%, transparent);
+}
+
+.aurora canvas {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  transform-origin: 50% 100%;
+}
+
+.aurora-b { opacity: 0.6; inset-inline-start: 12%; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .aurora-a { animation: curtain-a 19s ease-in-out infinite alternate; }
+  .aurora-b { animation: curtain-b 27s ease-in-out infinite alternate; }
+  /* Off screen, or with no night in the sky, the curtains hold still. */
+  :root[data-hero-offscreen] .aurora canvas,
+  :root[data-sky="day"] .aurora canvas { animation-play-state: paused; }
+}
+
+@keyframes curtain-a {
+  from { transform: translateX(-4%) scaleY(0.9); }
+  to { transform: translateX(4%) scaleY(1.06); }
+}
+
+@keyframes curtain-b {
+  from { transform: translateX(5%) scaleY(1.04) skewX(-4deg); }
+  to { transform: translateX(-3%) scaleY(0.88) skewX(3deg); }
+}
+
+/* The window: a dark frame around the player, lit from below by the limb. */
+.window {
+  grid-area: window;
+  box-sizing: border-box;
+  inline-size: var(--win-w);
+  padding: var(--frame);
+  border-radius: calc(var(--r-window) + var(--frame));
+  background: linear-gradient(to bottom, #151b29, #0a0d15 60%, #07090f);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.09),
+    inset 0 0 0 1px rgb(255 255 255 / 0.04),
+    0 0 0 1px rgb(0 0 0 / 0.6),
+    0 2px 0 -1px var(--glow, transparent),
+    0 40px 90px -30px rgb(0 0 0 / 0.9);
+  --glow: rgb(150 200 255 / 0.5);
+  transition: box-shadow var(--dur-sky) ease-in-out;
+}
+
+:root[data-sky="twilight"] .window { --glow: rgb(255 170 120 / 0.6); }
+:root[data-sky="night"] .window { --glow: rgb(92 242 166 / 0.28); }
+
+#player-slot video-player { display: block; --media-border-radius: var(--r-window); }
+
+#player-slot media-container:not(:fullscreen) {
+  aspect-ratio: 3 / 2;
+  box-sizing: content-box;
+  border-radius: var(--media-border-radius, var(--r-window));
+  --media-object-fit: cover;
+}
+
+/* The frame keeps its size, so the horizon stays put; the smaller player sits in the middle of it. */
+#player-slot[data-width] { display: grid; align-content: center; min-block-size: var(--win-h); }
+#player-slot[data-width] video-player { inline-size: 100%; margin-inline: auto; transition: max-inline-size var(--palette) var(--ease-out); }
+#player-slot[data-width="phone"] video-player { max-inline-size: 375px; }
+#player-slot[data-width="tablet"] video-player { max-inline-size: 768px; }
+
+/* Footage and width switches, the skin's segmented key chips. */
+.player-tools {
+  grid-area: tools;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  inline-size: min(100%, var(--win-w));
+  margin-block: -0.5rem -0.25rem;
+}
+
+.segmented {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-pill);
+  background: color-mix(in oklab, var(--site-ink) 6%, transparent);
+}
+
+.segment {
+  min-block-size: 2.25rem;
+  padding-inline: 0.85rem;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--site-ink-muted);
+  font: 600 0.75rem/1 var(--mono);
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background-color 160ms var(--ease-out), color 160ms var(--ease-out);
+}
+
+.segment:hover { color: var(--site-ink); background: color-mix(in oklab, var(--site-ink) 8%, transparent); }
+.segment:focus-visible { outline: 2px solid var(--page-accent); outline-offset: 1px; }
+.segment[aria-pressed="true"] { background: var(--page-accent); color: var(--site-accent-ink); }
+.segment-size { font-variant-numeric: tabular-nums; opacity: 0.8; }
+
+@media (pointer: coarse) {
+  .segment { min-block-size: 2.75rem; }
+}
+
+@media (forced-colors: active) {
+  .segment[aria-pressed="true"] { background: Highlight; color: HighlightText; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .segment, .gauge-mark, #player-slot[data-width] video-player { transition: none; }
+}
+
+/* The pass name: the biggest type on the page, sitting on the night side of the Earth. */
+.pass {
+  grid-area: pass;
+  display: grid;
+  gap: 0.75rem;
+  inline-size: min(100%, var(--win-w));
+  min-inline-size: 0;
+}
+
+.pass .mono-label { color: var(--page-accent); }
+
+.pass h1 {
+  font-size: clamp(2.375rem, 0.9rem + 5.6vw, 6.25rem);
+  font-weight: 640;
+  line-height: 0.96;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+#clip-title { display: inline-block; }
+
+@media (prefers-reduced-motion: no-preference) {
+  #clip-title.is-arriving { animation: arrive 420ms var(--ease-out); }
+}
+
+/* Only a short rise: the glyphs are whole and opaque in every frame, so a stalled animation never hides them. */
+@keyframes arrive {
+  from { transform: translateY(0.12em); }
+  to { transform: none; }
+}
+
+/* Live telemetry: tabular mono so the digits tick in place. */
+.telemetry {
+  grid-area: telemetry;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 1rem;
+  inline-size: min(100%, var(--win-w));
+  min-inline-size: 0;
+  border-block-start: 1px solid var(--hairline);
+}
+
+.telemetry > div {
+  display: grid;
+  gap: 0.125rem;
+  padding-block: 0.625rem;
+  border-block-end: 1px solid var(--hairline);
+}
+
+.telemetry dt {
+  color: var(--site-ink-faint);
+  font: 600 0.6875rem/1.4 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.telemetry dd {
+  font: 500 clamp(0.875rem, 0.8rem + 0.3vw, 1rem)/1.4 var(--mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.telemetry .t-place, .telemetry .t-sun { grid-column: 1 / -1; }
+/* Stacked under the player, the scale gets the full width at the end of the readout. */
+.telemetry .t-sun { order: 1; }
+
+.telemetry .t-place dd {
+  color: var(--page-accent);
+  font: 600 1.25rem/1.3 var(--font);
+  letter-spacing: -0.01em;
+  white-space: normal;
+}
+
+/* Sun elevation scale under the Sun reading: night, the ±6° twilight band, day. */
+.t-sun dd { display: grid; gap: 0.5rem; }
+
+.gauge {
+  display: block;
+  padding-block: 0.375rem 0;
+  --gauge: 0;
+}
+
+.gauge-scale {
+  position: relative;
+  display: grid;
+  grid-template-columns: 37.5fr 25fr 37.5fr;
+  max-inline-size: 16rem;
+  font: 600 0.5625rem/1 var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.gauge-ticks {
+  position: absolute;
+  inset: -0.4375rem 0 auto;
+  block-size: 0.3125rem;
+  background: repeating-linear-gradient(to right, var(--site-ink-faint) 0 1px, transparent 1px 12.5%);
+  opacity: 0.6;
+}
+
+.gauge-band {
+  padding-block-start: 0.375rem;
+  border-block-start: 3px solid;
+  color: var(--site-ink-faint);
+}
+
+.gauge-night { border-color: color-mix(in oklab, var(--site-pass-night) 85%, transparent); }
+.gauge-twilight { border-color: var(--site-twilight-accent); text-align: center; }
+.gauge-day { border-color: var(--site-pass-day); text-align: end; }
+
+.gauge-mark {
+  position: absolute;
+  inset-block-start: -0.3125rem;
+  inset-inline-start: calc((var(--gauge) + 1) * 50%);
+  inline-size: 0.8125rem;
+  block-size: 0.8125rem;
+  margin-inline-start: -0.40625rem;
+  box-sizing: border-box;
+  border: 2px solid var(--page-accent);
+  border-radius: 50%;
+  background: var(--space);
+  box-shadow: 0 0 0 2px rgb(3 5 10 / 0.8);
+  transition: inset-inline-start 400ms var(--ease-out);
+}
+
+.gauge[data-empty] { opacity: 0.4; }
+.gauge[data-empty] .gauge-mark { display: none; }
+
+/* Ground track: the live globe with every pass on it. */
+.track {
+  grid-area: track;
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+  inline-size: min(100%, 30rem);
+  min-inline-size: 0;
+}
+
+.track-head { display: flex; flex-wrap: nowrap; justify-content: space-between; gap: 0.25rem 1rem; align-items: center; }
+@media (max-width: 22rem) { .track-head { flex-wrap: wrap; } }
+.track-head h2 { color: var(--page-accent); }
+
+.globe {
+  position: relative;
+  inline-size: 100%;
+  aspect-ratio: 1;
+  touch-action: pan-y;
+}
+
+.globe canvas { display: block; inline-size: 100%; block-size: 100%; border-radius: 50%; }
+.globe canvas:focus-visible { outline-offset: 4px; }
+.globe[data-unavailable] { display: none; }
+
+.globe:focus-visible { outline-offset: 6px; border-radius: 50%; }
+.globe[data-mode="all"] canvas { cursor: grab; touch-action: none; }
+.globe[data-dragging] canvas { cursor: grabbing; }
+
+/* Pass chips: buttons on their track, or pinned to the rim with a small pointer when the track is out of view. */
+.globe-chip {
+  position: absolute;
+  inset: 0 auto auto 0;
+  display: grid;
+  place-items: center;
+  min-inline-size: 30px;
+  block-size: 22px;
+  margin: -11px 0 0 -15px;
+  padding: 0 0.3125rem;
+  border: 1px solid var(--edge);
+  border-radius: 6px;
+  background: rgb(3 5 10 / 0.8);
+  color: var(--site-ink);
+  font: 600 0.6875rem/1 var(--mono);
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background-color var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
+}
+
+/* A larger invisible hit area for touch, centred on the chip. */
+.globe-chip::before { content: ""; position: absolute; inset: -11px -7px; }
+
+.globe-chip[data-pinned] { color: var(--site-ink-muted); background: rgb(3 5 10 / 0.6); border-style: dashed; }
+
+.globe-chip[data-pinned]::after {
+  content: "";
+  position: absolute;
+  inset: 50% auto auto 50%;
+  inline-size: 0;
+  block-size: 0;
+  border-block: 4px solid transparent;
+  border-inline-start: 6px solid var(--site-ink-faint);
+  transform: rotate(var(--point, 0deg)) translateX(20px) translate(-50%, -50%);
+  transform-origin: 0 0;
+}
+
+.globe-chip[data-active] { color: var(--page-accent); border-color: var(--page-accent); }
+.globe-chip[data-focus], .globe-chip:hover { background: var(--page-accent); color: var(--site-accent-ink); border-style: solid; }
+.globe-chip:focus-visible { outline: 2px solid var(--page-accent); outline-offset: 2px; z-index: 1; }
+
+.segmented-small .segment { min-block-size: 1.875rem; padding-inline: 0.625rem; font-size: 0.6875rem; }
+@media (pointer: coarse) { .segmented-small .segment { min-block-size: 2.75rem; } }
+
+.globe-tip {
+  position: absolute;
+  inset: auto 0 0;
+  justify-self: center;
+  inline-size: max-content;
+  max-inline-size: 100%;
+  margin-inline: auto;
+  padding: 0.375rem 0.625rem;
+  border-radius: var(--r-pill);
+  background: color-mix(in oklab, var(--site-popover) 92%, transparent);
+  box-shadow: inset 0 0 0 1px var(--edge);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.track-note { color: var(--site-ink-faint); font-size: 0.8125rem; max-inline-size: 30rem; }
+
+.about-pass {
+  grid-area: about;
+  display: grid;
+  gap: 0.75rem;
+  inline-size: min(100%, var(--win-w));
+  min-inline-size: 0;
+}
+
+#clip-details {
+  max-inline-size: 38rem;
+  color: var(--site-ink-muted);
+  font-size: 1.0625rem;
+  text-wrap: pretty;
+}
+
+.clip-source {
+  max-inline-size: 38rem;
+  color: var(--site-ink-faint);
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+
+.plain-note {
+  max-inline-size: 38rem;
+  padding-inline-start: 0.875rem;
+  border-inline-start: 2px solid var(--page-accent);
+  color: var(--site-ink-muted);
+  font-size: 0.9375rem;
+}
+
+:root:not([data-plain]) .plain-note { display: none; }
+
+/* Narrower than the rails: the window spans the page, so the limb crests just under it and curves across. */
+@media (max-width: 74.99rem) {
+  .hero { --crest: calc(var(--win-h) - 0.75rem); }
+  .pass { margin-block-start: 0.75rem; }
+}
+
+/* Tablet: telemetry and the globe side by side under the pass name. */
+@media (min-width: 40rem) and (max-width: 74.99rem) {
+  .hero-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas: "window window" "tools tools" "pass pass" "telemetry track" "about track";
+    /* The description and credit sit under the stats, so the left column runs as long as the globe. */
+    grid-template-rows: auto auto auto auto 1fr;
+    column-gap: clamp(1.5rem, 4vw, 3rem);
+    justify-items: stretch;
+  }
+  .window { justify-self: center; }
+  .telemetry { align-self: start; inline-size: 100%; }
+  .track { inline-size: 100%; align-self: start; }
+  .about-pass { align-self: start; inline-size: 100%; }
+  .track-head { flex-wrap: nowrap; align-items: center; }
+}
+
+/* Wide: telemetry on the left of the window, the globe on the right; the window stays centred. */
+@media (min-width: 75rem) {
+  .hero { --rail: clamp(14rem, 19.5vw, 26rem); --gutter: clamp(1rem, 1.6vw, 2.5rem); --gap: clamp(1rem, 1.6vw, 2.5rem); }
+  .track-head { flex-direction: column; }
+
+  .hero-grid {
+    grid-template-columns: minmax(0, 1fr) var(--win-w) minmax(0, 1fr);
+    grid-template-areas:
+      "telemetry window track"
+      ". tools ."
+      ". pass ."
+      ". about .";
+    column-gap: var(--gap);
+  }
+
+  .telemetry {
+    grid-template-columns: minmax(0, 1fr);
+    align-self: end;
+    justify-self: end;
+    inline-size: min(100%, 15rem);
+    margin-block-end: calc(var(--win-h) * 0.16 + 0.5rem);
+    border-block-start: 0;
+  }
+
+  .telemetry > div { border-block-end: 0; border-block-start: 1px solid var(--hairline); padding-block: 0.5rem; }
+  .telemetry .t-sun { order: 0; }
+  .telemetry .t-place dd { font-size: 1.125rem; }
+
+  .track {
+    align-self: center;
+    justify-self: start;
+    /* The globe may use half the gutter: larger, and still whole on screen. */
+    inline-size: calc(100% + var(--gutter) + var(--gap) / 2 - 2px);
+    margin-inline-start: calc(var(--gap) / -2);
+    margin-block-end: calc(var(--win-h) * 0.12);
+  }
+
+  .track-note { font-size: 0.75rem; }
+
+  /* A soft shade behind the rails keeps their text at 4.5:1 when the aurora or the limb glow passes behind. */
+  .telemetry, .track-head, .track-note { position: relative; isolation: isolate; }
+
+  .telemetry::before, .track-head::before, .track-note::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: 1rem;
+    background: rgb(3 5 10 / 0.7);
+    box-shadow: 0 0 2rem 1.25rem rgb(3 5 10 / 0.7);
+  }
+
+  .pass, .about-pass { justify-self: start; }
+}
+
+/* ---------- Passes ---------- */
+
+.section-head {
+  display: grid;
+  gap: 0.75rem;
+  max-inline-size: 40rem;
+  margin-block-end: clamp(1.75rem, 4vw, 3rem);
+}
+
+.section-head .mono-label { color: var(--page-accent); }
+
+.section-head h2 {
+  font-size: clamp(1.875rem, 1.1rem + 3vw, 3.5rem);
+  font-weight: 640;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+
+.section-head p:not(.mono-label) { color: var(--site-ink-muted); text-wrap: pretty; }
+
+.passes {
+  box-sizing: border-box;
+  inline-size: min(84rem, 100%);
+  margin-inline: auto;
+  padding: var(--section) var(--gutter) 0;
+}
+
+.pass-list { border-block-start: 1px solid var(--hairline); counter-reset: pass; }
+
+.pass-list a {
+  position: relative;
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr) auto;
+  grid-template-areas: "number route length" "number tag tag" "number strip strip";
+  align-items: center;
+  gap: 0.25rem 1rem;
+  padding-block: 1rem;
+  border-block-end: 1px solid var(--hairline);
+  color: var(--site-ink);
+  text-decoration: none;
+  transition: background-color var(--dur) var(--ease-out);
+}
+
+.pass-list a[data-hover],
+.pass-list a:hover { background: linear-gradient(to right, color-mix(in oklab, var(--page-accent) 7%, transparent), transparent 70%); }
+.pass-list a:focus-visible { outline-offset: -2px; border-radius: 4px; }
+
+.pass-number {
+  grid-area: number;
+  align-self: start;
+  color: var(--site-ink-faint);
+  font: 300 2.25rem/1 var(--font);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+}
+
+.pass-route {
+  grid-area: route;
+  font-size: 1.1875rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.pass-arrow { margin-inline: 0.45em; color: var(--site-ink-faint); font-weight: 400; }
+
+.pass-tag {
+  grid-area: tag;
+  color: var(--site-ink-faint);
+  font: 600 0.6875rem/1.4 var(--mono);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.pass-strip {
+  grid-area: strip;
+  display: block;
+  block-size: 0.3125rem;
+  margin-block-start: 0.375rem;
+  border-radius: var(--r-pill);
+  background: var(--strip, color-mix(in oklab, var(--site-ink-faint) 40%, transparent));
+}
+
+.pass-length {
+  grid-area: length;
+  color: var(--site-ink-muted);
+  font: 500 0.875rem/1 var(--mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The boarded pass: accent numeral and a ringed node, as on the skin's route. */
+.pass-list a[aria-current] .pass-number { color: var(--page-accent); font-weight: 500; }
+
+.pass-list a[aria-current]::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: calc(-1 * min(var(--gutter), 1.5rem) + 0.125rem);
+  inset-block-start: 1.375rem;
+  inline-size: 0.625rem;
+  block-size: 0.625rem;
+  box-sizing: border-box;
+  border: 2px solid var(--page-accent);
+  border-radius: 50%;
+}
+
+@media (min-width: 48rem) {
+  .pass-list a {
+    grid-template-columns: 4.5rem minmax(0, 1fr) 8.5rem minmax(8rem, 18rem) 3rem;
+    grid-template-areas: "number route tag strip length";
+    gap: 1.25rem;
+    min-block-size: 4.5rem;
+    padding-block: 0.75rem;
+  }
+
+  .pass-number { align-self: center; font-size: 2.75rem; }
+  .pass-route { font-size: 1.375rem; }
+  .pass-strip { margin-block-start: 0; }
+  .pass-length { text-align: end; }
+  .pass-list a[aria-current]::before { inset-block-start: calc(50% - 0.3125rem); }
+}
+
+/* ---------- Design notes: stops along a ground-track line, scrolled sideways ---------- */
+
+.notes, .keys, .reuse {
+  box-sizing: border-box;
+  inline-size: min(84rem, 100%);
+  margin-inline: auto;
+  padding: var(--section) var(--gutter) 0;
+}
+
+/* Notes and Reuse use the hero's full width and gutters. */
+.notes, .reuse { inline-size: 100%; }
+@media (min-width: 75rem) { .notes, .reuse { --gutter: clamp(1rem, 1.6vw, 2.5rem); } }
+
+.notes { position: relative; }
+
+.stops-nav {
+  display: flex;
+  justify-content: end;
+  gap: 0.5rem;
+  margin-block: -1rem 0.75rem;
+}
+
+.stops-step, .chip-button {
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: 44px;
+  min-block-size: 44px;
+  padding-inline: 0.875rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-pill);
+  background: color-mix(in oklab, var(--site-ink) 8%, transparent);
+  color: var(--site-ink);
+  font: 600 0.875rem/1 var(--font);
+  cursor: pointer;
+  transition: background-color var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out);
+}
+
+.stops-step:hover, .chip-button:not(:disabled):hover {
+  border-color: var(--page-accent);
+  background: color-mix(in oklab, var(--page-accent) 14%, transparent);
+}
+
+.chip-button:disabled { color: var(--site-ink-faint); cursor: default; }
+
+.stops {
+  display: grid;
+  grid-auto-flow: column;
+  /* A whole number of cards fits the track at rest: one on phones, up to five on wide screens. */
+  --cards: 1;
+  grid-auto-columns: calc((100% - (var(--cards) - 1) * 2rem) / var(--cards));
+  gap: 2rem;
+  /* Bleeds to the right edge, so the next stop peeks in. */
+  padding: 0.5rem 0 1.5rem;
+  /* A soft trailing edge instead of a hard clip. */
+  mask-image: linear-gradient(to right, #000 calc(100% - 1.25rem), transparent);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+}
+
+@media (min-width: 37.5rem) { .stops { --cards: 2; } }
+@media (min-width: 56rem) { .stops { --cards: 3; } }
+@media (min-width: 75rem) { .stops { --cards: 4; } }
+@media (min-width: 100rem) { .stops { --cards: 5; } }
+
+.stops:focus-visible { outline-offset: 0; border-radius: var(--r-item); }
+
+.stop {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  align-content: start;
+  gap: 0.875rem;
+  padding-block-start: 2.25rem;
+  scroll-snap-align: start;
+}
+
+/* The track: a line from each stop to the next; the first node is ringed like the current place in Overflight. */
+.stop::before {
+  content: "";
+  position: absolute;
+  inset: 0.4375rem -2rem auto 0;
+  block-size: 2px;
+  background: linear-gradient(to right, var(--site-pass-day), var(--site-pass-night));
+  opacity: 0.55;
+}
+
+.stop:last-child::before { inset-inline-end: 0; background: linear-gradient(to right, var(--site-pass-night), transparent); }
+
+.stop-node {
+  position: absolute;
+  inset: 0 auto auto 0;
+  inline-size: 1rem;
+  block-size: 1rem;
+  box-sizing: border-box;
+  border: 2px solid var(--site-ink-faint);
+  border-radius: 50%;
+  background: var(--space);
+}
+
+.stop[data-active] .stop-node { border-color: var(--page-accent); box-shadow: inset 0 0 0 2px var(--space), inset 0 0 0 5px var(--page-accent); }
+
+.stop h3 {
+  font-size: 1.25rem;
+  font-weight: 640;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.stop-number {
+  display: block;
+  margin-block-end: 0.375rem;
+  color: var(--page-accent);
+  font: 600 0.6875rem/1 var(--mono);
+  letter-spacing: 0.14em;
+}
+
+.stop > p { color: var(--site-ink-muted); font-size: 0.9375rem; text-wrap: pretty; }
+.stop { transition: opacity var(--dur) var(--ease-out); }
+.stop .specimen { transition: box-shadow var(--dur) var(--ease-out); }
+.stop[data-active] .specimen { box-shadow: inset 0 0 0 1px var(--page-accent), inset 0 1px 0 rgb(255 255 255 / 0.1); }
+.stop[data-active] .stop-node { border-color: var(--page-accent); }
+
+.specimen {
+  display: grid;
+  /* One centring rule for all six: content centred both ways; wide parts (strips, sliders, lists) span the frame. */
+  align-content: center;
+  justify-items: center;
+  gap: 0.75rem;
+  /* Every specimen is the same height, so the six cards line up. */
+  box-sizing: border-box;
+  block-size: 11.5rem;
+  padding: 1.125rem;
+  border-radius: 16px;
+  background: color-mix(in oklab, var(--site-popover) 88%, transparent);
+  box-shadow: inset 0 0 0 1px var(--edge), inset 0 1px 0 rgb(255 255 255 / 0.1);
+}
+
+.specimen-legend { display: flex; flex-wrap: wrap; gap: 0.25rem 1rem; color: var(--site-ink-faint); }
+.specimen-legend span::before { content: ""; display: inline-block; inline-size: 0.5rem; block-size: 0.5rem; margin-inline-end: 0.375rem; border-radius: 50%; box-sizing: border-box; }
+.key-day::before { background: var(--site-pass-day); }
+.key-night::before { background: var(--site-pass-night); }
+
+.sky-status { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.25rem 0.5rem; color: var(--site-ink-faint); }
+.text-button { min-block-size: 32px; padding: 0 0.25rem; border: 0; background: none; color: var(--page-accent); font: inherit; text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; }
+.text-button:focus-visible { outline: 2px solid var(--page-accent); outline-offset: 2px; border-radius: 4px; }
+.sky-preview output { color: var(--page-accent); font-variant-numeric: tabular-nums; text-transform: none; letter-spacing: 0; }
+
+.sky-preview input {
+  inline-size: 100%;
+  block-size: 44px;
+  margin: 0;
+  background: transparent;
+  accent-color: var(--page-accent);
+  cursor: pointer;
+}
+
+.specimen :is(.demo-strip, .specimen-legend, .sky-status, input[type="range"], .accent-demo, .route) { justify-self: stretch; }
+.specimen-legend { justify-content: center; }
+.icon-row { display: grid; grid-template-columns: repeat(6, minmax(0, 2.75rem)); gap: clamp(4px, 1vw, 8px); color: var(--site-ink); }
+/* Icons note: the skin's own icons inside the same wrapper its settings rows use, so its row animations apply. */
+.demo-row {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  inline-size: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--r-pill);
+  background: color-mix(in oklab, var(--site-ink) 8%, transparent);
+  isolation: isolate;
+}
+.demo-row .media-menu-trigger-icon, .demo-row media-icon { display: grid; place-items: center; }
+.demo-row svg { display: block; }
+.icon-row .ws-captions-c { stroke-dasharray: 1 2; }
+.icon-row .ws-speed-needle { transform-box: view-box; transform-origin: 10px 12px; }
+.icon-row .ws-knob { transition: transform 260ms var(--ease-spring); }
+.demo-knobs[data-on] .ws-knob-start { transform: translateX(8.2px); }
+.demo-knobs[data-on] .ws-knob-end { transform: translateX(-8.2px); }
+.demo-gear svg { inline-size: 1.25rem; block-size: 1.25rem; }
+/* The hovered/active look: the accent disc fills in behind the icon. */
+.demo-hot { color: var(--site-accent-ink); }
+.demo-hot::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: var(--page-accent); scale: 1; }
+
+.icon-row svg, .focus-button svg { inline-size: 1.25rem; block-size: 1.25rem; }
+
+.route { display: grid; gap: 0.5rem; }
+
+.route li {
+  overflow-wrap: anywhere;
+  display: grid;
+  grid-template-columns: 0.75rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.625rem;
+  color: var(--site-ink-muted);
+  font-size: 0.875rem;
+}
+
+.route li::before {
+  content: "";
+  inline-size: 0.625rem;
+  block-size: 0.625rem;
+  box-sizing: border-box;
+  border: 2px solid var(--site-ink-faint);
+  border-radius: 50%;
+}
+
+.route li:only-child { display: block; }
+.route li:only-child::before { content: none; }
+.route li[data-passed]::before { border-color: var(--page-accent); background: var(--page-accent); }
+.route li[data-current] { color: var(--site-ink); font-weight: 600; }
+.route li[data-current]::before { border-color: var(--page-accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--page-accent) 30%, transparent); }
+.route-time { color: var(--site-ink-faint); font: 500 0.75rem/1 var(--mono); font-variant-numeric: tabular-nums; }
+
+.porthole { grid-auto-flow: column; justify-content: center; align-items: center; gap: 1rem; }
+.porthole .mono-label { color: var(--site-ink-faint); }
+
+.porthole-ring {
+  position: relative;
+  inline-size: 6.5rem;
+  block-size: 6.5rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #1d4f86, #0a2242 55%, #050a14 72%);
+  box-shadow: 0 0 0 3px #0c101a, 0 0 0 4px var(--edge), 0 0 18px rgb(110 175 255 / 0.35);
+}
+
+/* Once the page's globe has drawn, the porthole shows a capture of it. */
+.porthole-ring[data-globe] { background: var(--globe-shot) center / 112% no-repeat, #050a14; }
+.porthole-ring[data-globe] .porthole-dot { display: none; }
+
+.porthole-dot {
+  position: absolute;
+  inset: 44% auto auto 44%;
+  inline-size: 0.5rem;
+  block-size: 0.5rem;
+  border-radius: 50%;
+  background: #ffefd2;
+  box-shadow: 0 0 0 2px #081222, 0 0 0 5px color-mix(in oklab, var(--page-accent) 55%, transparent);
+}
+
+.focus-demo { display: flex; align-items: center; gap: 1rem; color: var(--site-ink-faint); }
+
+.focus-demo { flex-wrap: wrap; justify-content: center; text-align: center; }
+.focus-row { position: relative; display: flex; gap: 8px; }
+.focus-button media-icon { display: grid; place-items: center; inline-size: 1.25rem; block-size: 1.25rem; }
+.focus-button svg { display: block; }
+
+.focus-button {
+  display: inline-grid;
+  place-items: center;
+  inline-size: 44px;
+  block-size: 44px;
+  border-radius: var(--r-pill);
+  background: color-mix(in oklab, var(--site-ink) 10%, transparent);
+  color: var(--site-ink);
+}
+
+/* The focus ring that walks across the row; it rests on the second control when still. */
+.focus-walker {
+  position: absolute;
+  inset: -4px auto auto -4px;
+  inline-size: 52px;
+  block-size: 52px;
+  box-sizing: border-box;
+  border: 2px solid var(--page-accent);
+  border-radius: var(--r-pill);
+  translate: 52px 0;
+}
+
+/* ---------- Note demos: they loop only while their stop is the active one and on screen ---------- */
+
+.demo-strip {
+  position: relative;
+  display: block;
+  block-size: 0.5rem;
+  margin-block: 0.75rem;
+  border-radius: var(--r-pill);
+  background: linear-gradient(to right, var(--site-pass-day) 0 52%, color-mix(in oklab, var(--site-pass-day) 50%, var(--site-pass-night)) 58%, var(--site-pass-night) 64% 100%);
+}
+
+.demo-tick { position: absolute; inset: -3px auto -3px 58%; inline-size: 2px; background: var(--site-terminator); border-radius: 1px; }
+
+.demo-thumb {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 30%;
+  display: grid;
+  place-items: center;
+  inline-size: 2.125rem;
+  block-size: 1.25rem;
+  translate: -50% -50%;
+  color: var(--site-day-accent);
+  --demo-accent: var(--site-day-accent);
+}
+
+.demo-thumb svg { inline-size: 100%; block-size: 100%; fill: #fff; filter: drop-shadow(0 0 4px var(--demo-accent)) drop-shadow(0 1px 1px rgb(0 0 0 / 0.8)); }
+.demo-thumb:empty { inline-size: 1rem; block-size: 1rem; box-sizing: border-box; border: 2px solid var(--demo-accent); border-radius: 50%; background: var(--space); }
+.key-twilight::before { background: var(--site-twilight-accent); }
+
+.accent-demo { display: flex; align-items: center; gap: 0.75rem; }
+.accent-swatch { inline-size: 1.75rem; block-size: 1.75rem; border-radius: 50%; background: var(--site-day-accent); box-shadow: 0 0 0 3px rgb(255 255 255 / 0.08); }
+.accent-reading::after { content: "Sun +24.0° · day · gold"; color: var(--site-ink-muted); }
+
+@keyframes demo-cross {
+  0%, 8% { inset-inline-start: 4%; --demo-accent: var(--site-day-accent); }
+  50% { --demo-accent: var(--site-day-accent); }
+  55%, 62% { --demo-accent: var(--site-twilight-accent); }
+  66%, 100% { --demo-accent: var(--site-night-accent); }
+  92%, 100% { inset-inline-start: 96%; }
+}
+
+@keyframes demo-accent {
+  0%, 28% { background: var(--site-day-accent); }
+  36%, 61% { background: var(--site-twilight-accent); }
+  69%, 94% { background: var(--site-night-accent); }
+  100% { background: var(--site-day-accent); }
+}
+
+@keyframes demo-reading {
+  0%, 32% { content: "Sun +24.0° · day · gold"; }
+  33%, 65% { content: "Sun −2.0° · twilight · coral"; }
+  66%, 100% { content: "Sun −18.0° · night · green"; }
+}
+
+@keyframes demo-porthole {
+  0%, 30% { scale: 0.62; }
+  36%, 63% { scale: 0.82; }
+  69%, 94% { scale: 1; }
+  100% { scale: 0.62; }
+}
+
+@keyframes demo-walk {
+  0%, 22% { translate: 0 0; }
+  25%, 47% { translate: 52px 0; }
+  50%, 72% { translate: 104px 0; }
+  75%, 97% { translate: 156px 0; }
+  100% { translate: 0 0; }
+}
+
+@keyframes demo-turn { to { rotate: 1turn; } }
+/* Starts and rests full, so the still frame shows the accent; it drains and fills again. */
+@keyframes demo-fill { 0%, 55% { scale: 1; } 75% { scale: 0; } 100% { scale: 1; } }
+
+@property --demo-accent { syntax: "<color>"; inherits: true; initial-value: #ffc247; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .notes .demo-thumb { animation: demo-cross 7s var(--ease-out) infinite; }
+  .notes .accent-swatch { animation: demo-accent 7.5s ease-in-out infinite; }
+  .notes .accent-reading::after { animation: demo-reading 7.5s step-end infinite; }
+  .notes .porthole-ring { animation: demo-porthole 6s var(--ease-spring) infinite; }
+  .notes .focus-walker { animation: demo-walk 5s var(--ease-out) infinite; }
+  .notes .demo-gear svg { animation: demo-turn 6s linear infinite; }
+  .notes .demo-hot::before { animation: demo-fill 2.8s var(--ease-out) infinite; }
+
+  .notes :is(.demo-thumb, .accent-swatch, .porthole-ring, .focus-walker, .demo-gear svg),
+  .notes .demo-hot::before,
+  .notes .accent-reading::after { animation-play-state: paused; }
+
+  .notes[data-onscreen] .stop[data-active] :is(.demo-thumb, .accent-swatch, .porthole-ring, .focus-walker, .demo-gear svg),
+  .notes[data-onscreen] .stop[data-active] .demo-hot::before,
+  .notes[data-onscreen] .stop[data-active] .accent-reading::after { animation-play-state: running; }
+}
+
+/* ---------- Keys and reuse ---------- */
+
+.chip {
+  display: inline-grid;
+  place-items: center;
+  box-sizing: border-box;
+  min-inline-size: 1.625rem;
+  block-size: 1.625rem;
+  padding-inline: 0.45rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-pill);
+  background: color-mix(in oklab, var(--site-ink) 10%, transparent);
+  color: var(--site-ink);
+  font: 600 0.75rem/1 var(--mono);
+  font-variant-numeric: tabular-nums;
+  vertical-align: 0.05em;
+}
+
+.stop .chip { min-inline-size: 1.375rem; block-size: 1.375rem; font-size: 0.6875rem; }
+
+.key-list, .props {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+  column-gap: 2.5rem;
+  border-block-start: 1px solid var(--hairline);
+}
+
+.key-list > div, .props > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.375rem 1rem;
+  padding-block: 0.625rem;
+  border-block-end: 1px solid var(--hairline);
+}
+
+.key-list dt { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem; color: var(--site-ink-faint); }
+.key-list dd, .props dd { color: var(--site-ink-muted); font-size: 0.9375rem; }
+
+.reuse-body { display: grid; gap: 1.5rem; min-inline-size: 0; }
+
+.snippet {
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
+  padding: 1.25rem;
+  border-radius: 16px;
+  background: color-mix(in oklab, var(--site-popover) 92%, transparent);
+  box-shadow: inset 0 0 0 1px var(--edge);
+  color: var(--site-ink);
+  font: 500 0.8125rem/1.7 var(--mono);
+}
+
+.props { grid-template-columns: minmax(0, 1fr); }
+
+/* Customiser: four controls, a mini preview and the live snippet. */
+.customizer { display: grid; gap: 0.75rem; padding: 1rem; border-radius: 16px; background: color-mix(in oklab, var(--site-popover) 88%, transparent); box-shadow: inset 0 0 0 1px var(--edge); }
+.field { display: grid; gap: 0.375rem; min-inline-size: 0; margin: 0; padding: 0; border: 0; color: var(--site-ink-muted); font-size: 0.8125rem; }
+.field-row .field select { inline-size: 100%; min-inline-size: 0; min-block-size: 36px; font-size: 0.8125rem; }
+.field-label { white-space: nowrap; }
+.field-row .field input[type="range"] { block-size: 36px; }
+.field legend { padding: 0; margin-block-end: 0.5rem; }
+.field output { color: var(--page-accent); font: 600 0.8125rem/1 var(--mono); }
+.field-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; }
+@media (max-width: 30rem) { .field-row { grid-template-columns: minmax(0, 1fr); } }
+.field-note { color: var(--site-ink-faint); font-size: 0.8125rem; }
+.field select {
+  min-block-size: 44px;
+  padding-inline: 0.75rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-item);
+  background: var(--space);
+  color: var(--site-ink);
+  font: inherit;
+}
+.field input[type="range"] { inline-size: 100%; block-size: 44px; margin: 0; accent-color: var(--page-accent); }
+.field select:focus-visible, .swatch-option:has(input:focus-visible) { outline: 2px solid var(--page-accent); outline-offset: 2px; }
+
+.swatch-row { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+.swatch-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-block-size: 34px;
+  padding-inline: 0.375rem 0.625rem;
+  font-size: 0.8125rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-pill);
+  color: var(--site-ink-muted);
+  cursor: pointer;
+}
+.swatch-option:has(:checked) { border-color: var(--page-accent); color: var(--site-ink); }
+.swatch-option input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
+@media (pointer: coarse) { .swatch-option { min-block-size: 44px; } }
+.swatch { inline-size: 1.125rem; block-size: 1.125rem; border-radius: 50%; background: var(--swatch); }
+.swatch-sun { background: conic-gradient(var(--site-day-accent) 0 33%, var(--site-twilight-accent) 0 66%, var(--site-night-accent) 0); }
+.swatch-option input[type="color"] { inline-size: 1.75rem; block-size: 1.75rem; padding: 0; border: 0; border-radius: 50%; background: none; cursor: pointer; }
+
+
+.snippet-wrap { display: grid; gap: 0.625rem; min-inline-size: 0; padding: 1rem; border-radius: 16px; background: color-mix(in oklab, var(--site-popover) 88%, transparent); box-shadow: inset 0 0 0 1px var(--edge); }
+.snippet-wrap .snippet { margin: 0; padding: 0.875rem; font-size: 0.75rem; }
+.embed-head { display: flex; justify-content: space-between; align-items: center; }
+.icon-button { display: inline-grid; place-items: center; inline-size: 36px; block-size: 36px; padding: 0; border: 1px solid var(--hairline); border-radius: var(--r-pill); background: color-mix(in oklab, var(--site-ink) 8%, transparent); color: var(--site-ink); cursor: pointer; }
+.icon-button:hover { border-color: var(--page-accent); color: var(--page-accent); }
+.icon-button:focus-visible { outline: 2px solid var(--page-accent); outline-offset: 2px; }
+.icon-button svg { grid-area: 1 / 1; inline-size: 18px; block-size: 18px; }
+.icon-button .check-icon, .icon-button[data-copied] .copy-icon { display: none; }
+.icon-button[data-copied] .check-icon { display: block; color: var(--page-accent); }
+@media (pointer: coarse) { .icon-button { inline-size: 44px; block-size: 44px; } }
+.snippet-wrap .snippet { justify-self: stretch; white-space: pre; }
+.all-props summary { min-block-size: 44px; display: flex; align-items: center; color: var(--site-ink-faint); cursor: pointer; }
+.props-title { color: var(--site-ink-faint); }
+.props dt { color: var(--page-accent); font: 600 0.8125rem/1.4 var(--mono); }
+.fine { color: var(--site-ink-faint); font-size: 0.875rem; }
+
+.reuse-side { display: grid; gap: 1.25rem; min-inline-size: 0; align-content: start; }
+
+/* Wide: the preview player on the left; Customise and Embed stacked on the right, together exactly as tall as the player. */
+.reuse { --frame: clamp(5px, 0.8vw, 11px); }
+.reuse-body { gap: 1.5rem; }
+@media (min-width: 75rem) {
+  .reuse-body { grid-template-columns: minmax(0, 1fr) minmax(320px, 400px); column-gap: 2rem; align-items: stretch; }
+  .reuse-body > * { min-inline-size: 0; }
+  .reuse-body .preview-window { justify-self: stretch; inline-size: 100%; }
+  /* In the narrow side column: radius on its own row, marker and font side by side, each label above its control. */
+  .reuse-side .field-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .reuse-side .field-row > :first-child { grid-column: 1 / -1; }
+  /* Size containment: the column takes the row's height (set by the player) instead of growing it. */
+  .reuse-side { contain: size; grid-template-rows: auto minmax(0, 1fr); gap: 1rem; min-block-size: 100%; }
+  .reuse-body .all-props { grid-column: 1 / -1; }
+  .snippet-wrap { grid-template-rows: auto minmax(0, 1fr); min-block-size: 0; }
+  .snippet-wrap .snippet { overflow: auto; min-block-size: 0; }
+}
+
+/* Preview window: the skin's real controls (a static fixture) over a still that matches the chosen marker. */
+.preview-window {
+  justify-self: center;
+  box-sizing: border-box;
+  inline-size: min(100%, var(--preview-w, 75rem));
+  margin: 0;
+  padding: var(--frame);
+  border-radius: calc(var(--r-window) + var(--frame));
+  background: linear-gradient(to bottom, #151b29, #0a0d15 60%, #07090f);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.09), inset 0 0 0 1px rgb(255 255 255 / 0.04), 0 0 0 1px rgb(0 0 0 / 0.6), 0 40px 90px -30px rgb(0 0 0 / 0.9);
+}
+.preview-stage { position: relative; aspect-ratio: 3 / 2; overflow: hidden; border-radius: var(--preview-radius, var(--r-window)); }
+.preview-stage > media-container { position: absolute; inset: 0; inline-size: auto; block-size: auto; aspect-ratio: auto; background: transparent !important; }
+.backdrop { position: absolute; inset: 0; background: #0a1020 center / cover no-repeat; }
+.backdrop:is([data-scene="station"], [data-scene="dot"]) { background-image: var(--station-still, linear-gradient(#0a1020, #1d3a66)); }
+/* Original illustrated settings, one per marker (no photographs). */
+
+/* Selects and range as the skin's chips and slider. */
+.field select {
+  appearance: none;
+  border-radius: var(--r-pill);
+  background: color-mix(in oklab, var(--site-ink) 8%, transparent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23c9cfdc' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 0.875rem center;
+  padding-inline: 0.875rem 2rem;
+}
+.field option { background: var(--site-popover); color: var(--site-ink); }
+.field input[type="range"] { appearance: none; background: transparent; }
+.field input[type="range"]::-webkit-slider-runnable-track { block-size: 4px; border-radius: 999px; background: linear-gradient(to right, var(--page-accent) var(--fill, 50%), color-mix(in oklab, var(--site-ink-faint) 45%, transparent) var(--fill, 50%)); }
+.field input[type="range"]::-webkit-slider-thumb { appearance: none; inline-size: 16px; block-size: 16px; margin-block-start: -6px; border-radius: 50%; background: var(--page-accent); box-shadow: 0 0 0 3px var(--space); }
+.field input[type="range"]::-moz-range-track { block-size: 4px; border-radius: 999px; background: color-mix(in oklab, var(--site-ink-faint) 45%, transparent); }
+.field input[type="range"]::-moz-range-thumb { inline-size: 16px; block-size: 16px; border: 0; border-radius: 50%; background: var(--page-accent); }
+.field input[type="range"]:focus-visible { outline: 2px solid var(--page-accent); outline-offset: 2px; border-radius: 999px; }
+.field-row { align-items: start; }
+.field-label { display: flex; justify-content: space-between; gap: 0.5rem; min-block-size: 1.25rem; align-items: baseline; }
+
+/* ---------- Credits ---------- */
+
+.credits {
+  display: grid;
+  gap: 0.5rem;
+  box-sizing: border-box;
+  inline-size: min(84rem, 100%);
+  margin: var(--section) auto 0;
+  padding: 2rem var(--gutter) 3rem;
+  border-block-start: 1px solid var(--hairline);
+  color: var(--site-ink-faint);
+  font-size: 0.8125rem;
+}
+
+.credits p { max-inline-size: 60rem; }
+.outbound { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin-block-start: 0.5rem; }
+.outbound a { display: inline-flex; align-items: center; min-block-size: 44px; }
+
+/* ---------- Narrow ---------- */
+
+@media (max-width: 40rem) {
+  .topbar nav .nav-wide { display: none; }
+  .wordmark span { display: none; }
+  .topbar nav a { padding-inline: 0.5rem; }
+  /* Small screens: the curtains stay, still. */
+  .aurora canvas { animation: none !important; }
+}
+
+@media (max-width: 22rem) {
+  .topbar nav a { font-size: 0.8125rem; padding-inline: 0.375rem; }
+}
+
+/* ---------- Preferences ---------- */
+
+@media (prefers-reduced-transparency: reduce) {
+  .aurora { display: none; }
+}
+
+@media (forced-colors: active) {
+  .sky, .horizon { display: none; }
+  .window { border: 1px solid CanvasText; }
+  .gauge-mark { forced-color-adjust: none; border-color: Highlight; }
+}
+
+/* ---------- Full width: every section uses the hero's outer width and gutters ---------- */
+.passes, .keys, .credits { inline-size: 100%; }
+@media (min-width: 75rem) {
+  .passes, .keys, .credits { --gutter: clamp(1rem, 1.6vw, 2.5rem); }
+  /* Heading and intro on the left, the content to the right in the same row. */
+  .passes, .keys { display: grid; grid-template-columns: minmax(16rem, 1fr) minmax(0, 3fr); column-gap: clamp(2rem, 4vw, 5rem); align-items: start; }
+  .passes .section-head, .keys .section-head { margin-block-end: 0; position: sticky; inset-block-start: calc(var(--topbar) + 1.5rem); }
+  .pass-list a { grid-template-columns: 4.5rem minmax(12rem, 1.2fr) 9rem minmax(10rem, 2fr) 3rem; }
+  .key-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Footer: sources on the left; project line, links and notice on the right. */
+.credits-project { display: grid; gap: 0.5rem; align-content: start; }
+.credits-project .project-line { color: var(--site-ink-muted); font-weight: 600; }
+@media (min-width: 48rem) {
+  .credits { grid-template-columns: minmax(0, 3fr) minmax(16rem, 2fr); column-gap: 3rem; }
+  .credits-sources { display: grid; gap: 0.5rem; }
+  .credits-project { text-align: end; justify-items: end; }
+  .credits-project .outbound { justify-content: end; }
+}
+
+/* Notes track: the leading and trailing fades follow the scroll position. */
+.stops { mask-image: none; }
+.stops[data-more-end] { mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent); }
+.stops[data-more-start] { mask-image: linear-gradient(to right, transparent, #000 2rem); }
+.stops[data-more-start][data-more-end] { mask-image: linear-gradient(to right, transparent, #000 2rem, #000 calc(100% - 2rem), transparent); }
+
+/* Cards share rows, so every heading, body and specimen frame lines up across the track. */
+.stops { grid-template-rows: repeat(3, auto); }
+.stop { grid-row: 1 / span 3; grid-template-rows: subgrid; }
+
+/* Customise grows to fill the column; Embed is as tall as its snippet. */
+@media (min-width: 75rem) {
+  .reuse-side { grid-template-rows: minmax(0, 1fr) auto; }
+  .customizer { overflow: auto; align-content: start; }
+  .snippet-wrap { grid-template-rows: auto auto; }
+  .reuse-side .field-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .reuse-side .field-row > :first-child { grid-column: auto; }
+}
+.reset-button { justify-self: start; font-size: 0.8125rem; }
+
+/* Reuse side column: tighter rhythm so Customise fits beside the player without its own scrollbar. */
+@media (min-width: 75rem) {
+  .reuse-side .customizer { gap: 0.5rem; padding: 0.75rem 0.875rem; }
+  .reuse-side .field { gap: 0.25rem; }
+  .reuse-side .field-row { gap: 0.5rem 0.75rem; }
+  .reuse-side .field-row .field select { min-block-size: 32px; }
+  .reuse-side .field-row .field input[type="range"] { block-size: 28px; }
+  .reuse-side .field legend { margin-block-end: 0.375rem; }
+  .reuse-side .field-note { font-size: 0.75rem; line-height: 1.35; }
+}
+
+/* The full property list is a disclosure: show that it opens. */
+.all-props summary { gap: 0.5rem; list-style: none; color: var(--site-ink-muted); }
+.all-props summary::-webkit-details-marker { display: none; }
+.all-props summary::after { content: "+"; color: var(--page-accent); font: 600 1rem/1 var(--mono); }
+.all-props[open] summary::after { content: "\2212"; }
+.all-props summary:hover { color: var(--site-ink); }
+.all-props summary:focus-visible { outline: 2px solid var(--page-accent); outline-offset: 2px; border-radius: 6px; }
+
+/* Wide: Customise is never scrolled; Embed takes what is left of the player's height and scrolls its snippet. */
+@media (min-width: 90rem) {
+  .reuse-side { grid-template-rows: auto minmax(7rem, 1fr); }
+  .reuse-side .customizer { overflow: visible; }
+  .reuse-side .snippet-wrap { grid-template-rows: auto minmax(0, 1fr); }
+}
+/* Between tablet and wide the side column is too short for both panels: player on top, panels side by side below. */
+@media (min-width: 48rem) and (max-width: 89.99rem) {
+  .reuse-body { grid-template-columns: minmax(0, 1fr); }
+  .reuse-side { contain: none; min-block-size: 0; grid-template-rows: none; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+  .reuse-side .customizer { overflow: visible; }
+  .reuse-side .snippet-wrap { grid-template-rows: auto auto; }
+}
+
+/* Nothing decorative (sky layers, the hidden scrub thumbnail, rim chips mid-update) may widen the page. */
+html, body { overflow-x: clip; }
+
+/* The custom accent input is a round swatch like the presets. */
+#accent-color { appearance: none; -webkit-appearance: none; inline-size: 1.125rem; block-size: 1.125rem; padding: 0; border: 0; border-radius: 50%; background: none; overflow: hidden; cursor: pointer; box-shadow: 0 0 0 1px var(--hairline); }
+#accent-color::-webkit-color-swatch-wrapper { padding: 0; }
+#accent-color::-webkit-color-swatch { border: 0; border-radius: 50%; }
+#accent-color::-moz-color-swatch { border: 0; border-radius: 50%; }
+
+/* Room for the highlighted card's ring at both ends of the notes track. */
+.stops { padding-inline: 3px; scroll-padding-inline: 3px; }
+
+/* The preview's callout is a plain copy of the skin's, so it needs the skin's own display rule. */
+.preview-stage div.ws-callout { display: flex; }

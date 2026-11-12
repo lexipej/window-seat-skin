@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Watch Earth from the International Space Station with Window Seat, a Video.js skin whose colour follows the sun at the station’s position." />
+    <meta name="theme-color" content="#04060c" />
+    <meta property="og:title" content="Window Seat · Video.js v10 skin" />
+    <meta property="og:description" content="A Video.js v10 skin for footage from orbit: its accent and seek bar follow the sun at the station’s position." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://image.mux.com/1kG49M02781QDM00hwI6ep1PgFyT8OUSD8cfsAlFvBEWQ/thumbnail.jpg?time=45&amp;width=1200&amp;height=630&amp;fit_mode=smartcrop" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2304060c'/%3E%3Ccircle cx='16' cy='16' r='9' fill='%23ffc247' opacity='.45'/%3E%3Cellipse cx='16' cy='16' rx='12.5' ry='4.6' transform='rotate(-24 16 16)' fill='none' stroke='%23ffc247' stroke-width='2.4'/%3E%3Ccircle cx='26.6' cy='11.3' r='2.8' fill='%23ffc247'/%3E%3C/svg%3E" />
+    <title>Window Seat · Video.js v10 skin</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to the player</a>
+
+    <!-- The page is the sky at the station's position: tinted by the sun's elevation, stars by night. -->
+    <div class="sky" aria-hidden="true">
+      <div class="sky-tint sky-tint-day"></div>
+      <div class="sky-tint sky-tint-dusk"></div>
+      <div class="sky-tint sky-tint-night"></div>
+      <canvas class="sky-stars"></canvas>
+    </div>
+
+    <header class="topbar">
+      <p class="wordmark">Window Seat <span>Video.js v10 skin</span></p>
+      <nav aria-label="Page">
+        <a href="#passes">Passes</a>
+        <a href="#notes">Notes</a>
+        <a href="#keys" class="nav-wide">Keys</a>
+        <a href="#reuse">Reuse</a>
+      </nav>
+    </header>
+
+    <main id="main" tabindex="-1">
+      <section class="hero" aria-labelledby="clip-title">
+        <div class="horizon" aria-hidden="true">
+          <div class="aurora"><canvas class="aurora-a"></canvas><canvas class="aurora-b"></canvas></div>
+          <div class="limb limb-day"></div>
+          <div class="limb limb-dusk"></div>
+          <div class="limb limb-night"></div>
+        </div>
+
+        <div class="hero-grid">
+          <div class="window" id="player-slot"></div>
+
+          <div class="player-tools">
+            <div class="segmented" role="group" aria-label="Footage">
+              <button type="button" class="segment" data-footage="orbit" aria-pressed="true">Orbit pass</button>
+              <button type="button" class="segment" data-footage="plain" aria-pressed="false">Plain video</button>
+            </div>
+            <div class="segmented" role="group" aria-label="Player width">
+              <button type="button" class="segment" data-width="phone" aria-pressed="false">Phone <span class="segment-size">375</span></button>
+              <button type="button" class="segment" data-width="tablet" aria-pressed="false">Tablet <span class="segment-size">768</span></button>
+              <button type="button" class="segment" data-width="full" aria-pressed="true">Full</button>
+            </div>
+          </div>
+
+          <div class="pass">
+            <p id="clip-meta" class="mono-label"></p>
+            <h1><span class="sr-only">Window Seat: </span><span id="clip-title"></span></h1>
+          </div>
+
+          <dl class="telemetry" id="telemetry" aria-label="Live telemetry">
+            <div class="t-place"><dt>Over</dt><dd data-t="place">—</dd></div>
+            <div><dt>Latitude</dt><dd data-t="lat">—</dd></div>
+            <div><dt>Longitude</dt><dd data-t="lon">—</dd></div>
+            <div><dt>Altitude</dt><dd data-t="alt">—</dd></div>
+            <div class="t-sun">
+              <dt>Sun</dt>
+              <dd>
+                <span data-t="sun">—</span>
+                <!-- Sun elevation on a ±24° scale; the twilight band is ±6°, where the accent turns coral. -->
+                <span class="gauge" aria-hidden="true">
+                  <span class="gauge-scale">
+                    <span class="gauge-ticks"></span>
+                    <span class="gauge-band gauge-night">Night</span>
+                    <span class="gauge-band gauge-twilight">Twilight</span>
+                    <span class="gauge-band gauge-day">Day</span>
+                    <span class="gauge-mark"></span>
+                  </span>
+                </span>
+              </dd>
+            </div>
+            <div><dt>Solar time</dt><dd data-t="solar">—</dd></div>
+          </dl>
+
+          <section class="track" id="ground-track" aria-labelledby="track-title">
+            <div class="track-head">
+              <h2 id="track-title" class="mono-label">Ground track</h2>
+              <div class="segmented segmented-small" role="group" aria-label="Globe view">
+                <button type="button" class="segment" data-globe-mode="pass" aria-pressed="false">This pass</button>
+                <button type="button" class="segment" data-globe-mode="all" aria-pressed="true">All passes</button>
+              </div>
+            </div>
+            <div class="globe" role="group" tabindex="0" aria-label="Ground track globe"><span class="globe-tip" aria-hidden="true" hidden></span></div>
+            <p class="track-note">The dot marks the point directly below the station. Each line is a pass, blue where the ground was in daylight, violet at night. The <a href="#passes">list of passes</a> does the same with the keyboard.</p>
+          </section>
+
+          <div class="about-pass">
+            <p id="clip-details"></p>
+            <div id="clip-source" class="clip-source"></div>
+            <p class="plain-note">No orbit data, chapters or captions: this pass plays on the plain skin, as an ordinary video would. The sky stays at night.</p>
+          </div>
+        </div>
+        <p id="clip-status" class="sr-only" role="status"></p>
+      </section>
+
+      <section class="passes" id="passes" aria-labelledby="passes-title">
+        <div class="section-head">
+          <p class="mono-label">Six passes</p>
+          <h2 id="passes-title">One orbit, cut into six windows</h2>
+          <p>Each pass is a stretch of a real orbit from 2026. The strip under each name is its daylight, worked out from the station’s position and the sun’s.</p>
+        </div>
+        <ol id="clip-picker" class="pass-list" role="list"></ol>
+      </section>
+
+      <section class="notes" id="notes" aria-labelledby="notes-title">
+        <div class="section-head">
+          <p class="mono-label">Design notes</p>
+          <h2 id="notes-title">Six stops along the ground track</h2>
+          <p>The player is a seat by the window. Its controls report where the station is and whether the ground below is in sunlight, and they stay legible over bright cloud and dark ocean.</p>
+        </div>
+        <div class="stops-nav">
+          <button type="button" class="stops-step" data-step="-1" aria-controls="stops" aria-label="Previous note"><span aria-hidden="true">←</span></button>
+          <button type="button" class="stops-step" data-step="1" aria-controls="stops" aria-label="Next note"><span aria-hidden="true">→</span></button>
+        </div>
+        <ol class="stops" id="stops" role="list" tabindex="0" aria-label="Design notes, scroll sideways">
+          <li class="stop">
+            <span class="stop-node" aria-hidden="true"></span>
+            <h3><span class="stop-number">01</span> The seek bar is the pass</h3>
+            <p>With orbit data, the bar shows the light on the ground below the station: blue for day, violet for night, blended through twilight. A tick marks each sunrise and sunset. Without orbit data it is a plain track, split by chapters.</p>
+            <figure class="specimen" aria-label="The station thumb crossing a day-to-night strip; the accent turns gold, coral, green">
+              <span class="demo-strip" aria-hidden="true"><span class="demo-tick"></span><span class="demo-thumb"></span></span>
+              <figcaption class="specimen-legend mono-label"><span class="key-day">Day</span><span class="key-twilight">Twilight</span><span class="key-night">Night</span></figcaption>
+            </figure>
+          </li>
+          <li class="stop">
+            <span class="stop-node" aria-hidden="true"></span>
+            <h3><span class="stop-number">02</span> The accent follows the sun</h3>
+            <p>The accent is gold while the sun is more than 6° up, coral within 6° of the horizon and green below. It is computed from orbital data at the station’s position, never sampled from the picture. This page’s sky follows the same number.</p>
+            <figure class="specimen sky-preview">
+              <div class="accent-demo" aria-hidden="true"><span class="accent-swatch"></span><span class="accent-reading mono-label"></span></div>
+              <div class="sky-status mono-label"><label for="sky-input">Preview the sky</label><span><output id="sky-output" for="sky-input">following the pass</output> <button type="button" id="sky-live" class="text-button" hidden>Back to live</button></span></div>
+              <input id="sky-input" type="range" min="-24" max="24" step="0.5" value="0" />
+            </figure>
+          </li>
+          <li class="stop">
+            <span class="stop-node" aria-hidden="true"></span>
+            <h3><span class="stop-number">03</span> Icons in two solid tones</h3>
+            <p>Each icon is a solid shape over a second layer at 45% opacity, drawn on a 20 px grid. Filled shapes hold up over bright cloud better than thin outlines. Parts move with state: speaker waves retract, caption marks draw in.</p>
+            <figure class="specimen" aria-label="Icons from the skin">
+              <div class="icon-row">
+                <span class="demo-row"><span class="media-menu-trigger-icon"><media-icon family="window-seat" name="volume-high" data-cycle="volume-high volume-low volume-off"></media-icon></span></span>
+                <span class="demo-row demo-play demo-hot"><span class="media-menu-trigger-icon"><media-icon family="window-seat" name="captions-on"></media-icon></span></span>
+                <span class="demo-row demo-play"><span class="media-menu-trigger-icon"><media-icon family="window-seat" name="speed"></media-icon></span></span>
+                <span class="demo-row demo-knobs"><span class="media-menu-trigger-icon"><media-icon family="window-seat" name="switches"></media-icon></span></span>
+                <span class="demo-row"><span class="media-menu-trigger-icon"><media-icon family="window-seat" name="fullscreen-enter" data-cycle="fullscreen-enter fullscreen-exit"></media-icon></span></span>
+                <span class="demo-row demo-gear"></span>
+              </div>
+            </figure>
+          </li>
+          <li class="stop">
+            <span class="stop-node" aria-hidden="true"></span>
+            <h3><span class="stop-number">04</span> Overflight lists the places</h3>
+            <p>Chapters name the places the station passes over. Overflight (<kbd class="chip">P</kbd>) lists them as a route: passed places filled, the current one ringed, the rest hollow. Choosing a place seeks to it, and a callout names the place below.</p>
+            <figure class="specimen" aria-label="Overflight route of the playing pass, around the current place">
+              <ol class="route" id="note-route" role="list"></ol>
+            </figure>
+          </li>
+          <li class="stop">
+            <span class="stop-node" aria-hidden="true"></span>
+            <h3><span class="stop-number">05</span> A porthole on the globe</h3>
+            <p>In fullscreen, <kbd class="chip">G</kbd> opens this globe inside the player as a round porthole in three sizes, and it drops to a corner when the controls hide. The dot is the point directly below the station; the camera may be looking elsewhere.</p>
+            <figure class="specimen porthole" aria-hidden="true"><span class="porthole-ring"><span class="porthole-dot"></span></span><span class="mono-label">G · three sizes</span></figure>
+          </li>
+          <li class="stop">
+            <span class="stop-node" aria-hidden="true"></span>
+            <h3><span class="stop-number">06</span> Readable over any footage</h3>
+            <p>Controls sit on dark tinted glass: text and icons meet 4.5:1, tracks and focus rings 3:1. Focus is a 2 px ring in the accent and touch targets grow to 44 px. Reduced motion, more contrast and forced colours are all honoured.</p>
+            <figure class="specimen" aria-label="A focused 44 pixel control">
+              <div class="focus-demo">
+                <span class="focus-row" aria-hidden="true">
+                  <span class="focus-button"><media-icon family="window-seat" name="volume-high"></media-icon></span>
+                  <span class="focus-button"><media-icon family="window-seat" name="captions-on"></media-icon></span>
+                  <span class="focus-button"><media-icon family="window-seat" name="switches"></media-icon></span>
+                  <span class="focus-button"><media-icon family="window-seat" name="fullscreen-enter"></media-icon></span>
+                  <span class="focus-walker"></span>
+                </span>
+                <span class="mono-label">44 px targets · 2 px focus ring</span>
+              </div>
+            </figure>
+          </li>
+        </ol>
+      </section>
+
+      <section class="keys" id="keys" aria-labelledby="keys-title">
+        <div class="section-head">
+          <p class="mono-label">Keyboard</p>
+          <h2 id="keys-title">Every control, by key</h2>
+          <p>Tab reaches every control. The skin also answers to these keys, shown in its tooltips and menus.</p>
+        </div>
+        <dl class="key-list">
+          <div><dt><kbd class="chip">Space</kbd><kbd class="chip">K</kbd></dt><dd>Play or pause</dd></div>
+          <div><dt><kbd class="chip">←</kbd><kbd class="chip">→</kbd><kbd class="chip">J</kbd><kbd class="chip">L</kbd></dt><dd>Seek back or forward</dd></div>
+          <div><dt><kbd class="chip">↑</kbd><kbd class="chip">↓</kbd></dt><dd>Volume</dd></div>
+          <div><dt><kbd class="chip">M</kbd></dt><dd>Mute</dd></div>
+          <div><dt><kbd class="chip">0</kbd>–<kbd class="chip">9</kbd></dt><dd>Jump to 0–90%</dd></div>
+          <div><dt><kbd class="chip">Home</kbd><kbd class="chip">End</kbd></dt><dd>Start or end</dd></div>
+          <div><dt><kbd class="chip">&lt;</kbd><kbd class="chip">&gt;</kbd></dt><dd>Slower or faster</dd></div>
+          <div><dt><kbd class="chip">C</kbd></dt><dd>Captions</dd></div>
+          <div><dt><kbd class="chip">F</kbd></dt><dd>Fullscreen</dd></div>
+          <div><dt><kbd class="chip">I</kbd></dt><dd>Picture-in-picture</dd></div>
+          <div><dt><kbd class="chip">P</kbd><kbd class="chip">N</kbd></dt><dd>Overflight</dd></div>
+          <div><dt><kbd class="chip">G</kbd></dt><dd>Globe porthole</dd></div>
+          <div><dt><kbd class="chip">A</kbd></dt><dd>Aurora glow</dd></div>
+          <div><dt><kbd class="chip">Esc</kbd></dt><dd>Close menus and popups</dd></div>
+        </dl>
+      </section>
+
+      <section class="reuse" id="reuse" aria-labelledby="reuse-title">
+        <div class="section-head">
+          <p class="mono-label">Reuse</p>
+          <h2 id="reuse-title">Take the seat</h2>
+          <p id="about">Window Seat is a <a href="https://videojs.org/">Video.js</a> v10 HTML skin made for the Video.js Skins Design Challenge. Copy <a data-repo-path="tree/main/skin">the skin folder</a> into a project, then give each player its markup and a media element. Chapters, captions and orbit data are optional.</p>
+          <p class="fine">Code under the <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache License 2.0</a>. Footage, NASA imagery and third-party audio are outside the code license. <a href="#about">About the project</a></p>
+        </div>
+        <div class="reuse-body">
+          <figure class="preview-window" id="preview-window" aria-label="Preview of the skin with the chosen settings">
+            <div class="preview-stage"><div class="backdrop" data-scene="station"></div></div>
+          </figure>
+          <div class="reuse-side">
+          <form class="customizer" id="customizer" aria-labelledby="customizer-title">
+            <h3 id="customizer-title" class="mono-label props-title">Customise · preview only</h3>
+            <fieldset class="field">
+              <legend>Accent</legend>
+              <div class="swatch-row">
+                <label class="swatch-option"><input type="radio" name="accent" value="sun" checked /><span class="swatch swatch-sun"></span>Follows the sun</label>
+                <label class="swatch-option"><input type="radio" name="accent" value="#6ccbff" /><span class="swatch" style="--swatch: #6ccbff"></span>Sky</label>
+                <label class="swatch-option"><input type="radio" name="accent" value="#ff7aa8" /><span class="swatch" style="--swatch: #ff7aa8"></span>Rose</label>
+                <label class="swatch-option"><input type="radio" name="accent" value="#c6f36b" /><span class="swatch" style="--swatch: #c6f36b"></span>Lime</label>
+                <label class="swatch-option"><input type="radio" name="accent" value="custom" /><input type="color" id="accent-color" value="#ffffff" aria-label="Custom accent colour" />Own</label>
+              </div>
+              <p class="field-note">Default: follows the sun (gold, coral, green). A fixed accent overrides it.</p>
+            </fieldset>
+            <div class="field-row">
+              <label class="field"><span class="field-label">Radius <output id="radius-output">14 px</output></span>
+                <input type="range" id="radius" min="0" max="28" step="1" value="14" />
+              </label>
+              <label class="field"><span class="field-label">Marker</span>
+                <select id="marker">
+                  <option value="station">Station (default)</option>
+                  <option value="plane">Plane</option>
+                  <option value="ship">Ship</option>
+                  <option value="car">Car</option>
+                  <option value="helicopter">Helicopter</option>
+                  <option value="train">Train</option>
+                  <option value="dot">Dot</option>
+                </select>
+              </label>
+              <label class="field"><span class="field-label">Font</span>
+                <select id="font">
+                  <option value="">Skin default</option>
+                  <option value="system-ui, sans-serif">System</option>
+                  <option value="ui-monospace, monospace">Mono</option>
+                </select>
+              </label>
+              <label class="field"><span class="field-label">Control size</span>
+                <select id="scale"><option value="">Default</option><option value="13px">Compact</option><option value="19px">Large</option></select>
+              </label>
+              <label class="field"><span class="field-label">Frame line</span>
+                <select id="border"><option value="">None</option><option value="rgb(255 255 255 / 0.18)">Hairline</option><option value="accent">Accent</option></select>
+              </label>
+              <label class="field"><span class="field-label">Text on accent</span>
+                <select id="accent-text"><option value="">Auto</option><option value="#10131c">Dark</option><option value="#ffffff">Light</option></select>
+              </label>
+              <label class="field"><span class="field-label">Picture fit</span>
+                <select id="fit"><option value="">Cover</option><option value="contain">Contain</option></select>
+              </label>
+              <label class="field"><span class="field-label">Picture position</span>
+                <select id="position"><option value="">Centre</option><option value="top">Top</option><option value="bottom">Bottom</option></select>
+              </label>
+            </div>
+            <button type="reset" class="text-button reset-button">Reset</button>
+          </form>
+          <div class="snippet-wrap">
+            <div class="embed-head">
+              <h3 class="mono-label props-title">Embed</h3>
+              <button type="button" class="icon-button" id="copy-snippet" aria-label="Copy snippet">
+                <svg class="copy-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false"><rect opacity=".45" x="2.5" y="2.5" width="10.5" height="12" rx="2.5"/><rect x="7" y="5.5" width="10.5" height="12" rx="2.5"/></svg>
+                <svg class="check-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false"><circle opacity=".45" cx="10" cy="10" r="8"/><path d="m6.2 10.2 2.6 2.6 5-5.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+            <pre class="snippet" tabindex="0" aria-label="Embed snippet"><code id="snippet"></code></pre>
+            <span id="copy-status" class="sr-only" role="status"></span>
+          </div>
+          </div>
+          <details class="all-props" open>
+            <summary class="mono-label">All public custom properties</summary>
+          <dl class="props">
+            <div><dt>--media-accent-color</dt><dd>Replaces the daylight accent</dd></div>
+            <div><dt>--media-accent-text-color</dt><dd>Text and icons on the accent</dd></div>
+            <div><dt>--media-border-color</dt><dd>Hairline around the player</dd></div>
+            <div><dt>--media-border-radius</dt><dd>Corner radius of the video</dd></div>
+            <div><dt>--media-font-family</dt><dd>Interface type</dd></div>
+            <div><dt>--media-object-fit</dt><dd>How the video fills the frame</dd></div>
+            <div><dt>--media-object-position</dt><dd>Where the video sits in the frame</dd></div>
+            <div><dt>--media-scale-unit</dt><dd>Base unit for every control size (16 px)</dd></div>
+          </dl>
+          </details>
+        </div>
+      </section>
+    </main>
+
+    <footer class="credits">
+      <div class="credits-sources">
+        <p>ISS footage from <a href="https://eol.jsc.nasa.gov/">NASA’s Gateway to Astronaut Photography of Earth</a>.</p>
+        <p>Globe imagery from NASA Earth Observatory:
+        <a href="https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/base-topography/">Blue Marble Next Generation</a> and
+        <a href="https://science.nasa.gov/earth/earth-observatory/earth-at-night/maps/">2016 Black Marble</a>.
+        Place names use <a href="https://www.naturalearthdata.com/">Natural Earth</a>.
+      </p>
+        <p>Music from Pixabay by Caffeine_Creek_Band, Diff_Style, DELOSound, and sigmaeffect. <a data-repo-path="#credits">Full track credits</a>.</p>
+        <p>Reuse preview: the station frame is from the ISS passes above; the plane, ship, car, helicopter and train stills were generated by the site author with CapCut’s image generator.</p>
+        <p>Icons adapted from <a href="https://github.com/phosphor-icons/core">Phosphor Icons</a> (MIT).</p>
+      </div>
+      <div class="credits-project">
+        <p class="project-line">Window Seat · Video.js v10 skin · <a href="https://www.apache.org/licenses/LICENSE-2.0">Apache 2.0</a></p>
+        <ul class="outbound" id="outbound" aria-label="Project links" hidden></ul>
+        <p>This independent project has no NASA affiliation or endorsement.</p>
+      </div>
+    </footer>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

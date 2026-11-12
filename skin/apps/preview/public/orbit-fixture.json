@@ -1,0 +1,15 @@
+{
+  "title": "Illustrative pass for the Window Seat workbench",
+  "duration": 112,
+  "samples": [
+    { "videoTime": 0, "utc": "2026-09-22T23:40:00Z", "lat": -46, "lon": 168, "altKm": 420 },
+    { "videoTime": 14, "utc": "2026-09-22T23:45:22Z", "lat": -32, "lon": -170, "altKm": 420 },
+    { "videoTime": 28, "utc": "2026-09-22T23:50:45Z", "lat": -12, "lon": -147, "altKm": 419 },
+    { "videoTime": 42, "utc": "2026-09-22T23:56:07Z", "lat": 12, "lon": -122, "altKm": 418 },
+    { "videoTime": 56, "utc": "2026-09-23T00:01:30Z", "lat": 29, "lon": -98, "altKm": 417 },
+    { "videoTime": 70, "utc": "2026-09-23T00:06:52Z", "lat": 44, "lon": -75, "altKm": 416 },
+    { "videoTime": 84, "utc": "2026-09-23T00:12:15Z", "lat": 51, "lon": -49, "altKm": 416 },
+    { "videoTime": 98, "utc": "2026-09-23T00:17:37Z", "lat": 48, "lon": -29, "altKm": 416 },
+    { "videoTime": 112, "utc": "2026-09-23T00:23:00Z", "lat": 36, "lon": -13, "altKm": 417 }
+  ]
+}

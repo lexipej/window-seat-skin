@@ -1,0 +1,325 @@
+@layer base.theme, base.preset, base.preferences;
+
+/*
+ * Window Seat theme tokens.
+ *
+ * The band's palette follows daylight at the station: `data-daylight="day" | "night" | "twilight"` on the container
+ * (set by `<ws-daylight>` from orbit data). Without it, the palette follows the inherited `color-scheme`
+ * (light → day, dark → night). Browsers without `light-dark()` get the night palette.
+ *
+ * Every text and graphic pair here meets WCAG contrast against its band: text ≥ 4.5:1, track, rings and icons ≥ 3:1.
+ */
+@layer base.preset {
+  .media-skin[data-theme="window-seat"] {
+    --ws-scale: 1;
+    --ws-unit: calc(var(--media-scale-unit, 16px) / 4 * var(--ws-scale));
+    --ws-space-4: var(--ws-unit);
+    --ws-space-8: calc(var(--ws-unit) * 2);
+    --ws-space-12: calc(var(--ws-unit) * 3);
+    --ws-space-16: calc(var(--ws-unit) * 4);
+    --ws-space-24: calc(var(--ws-unit) * 6);
+    --ws-icon: calc(var(--ws-unit) * 5);
+    --ws-control: calc(var(--ws-unit) * 9);
+    --ws-island-height: calc(var(--ws-unit) * 12);
+    --ws-island-gap: var(--ws-space-8);
+    --ws-island-padding: calc(var(--ws-unit) * 1.5);
+    /* One distance between the control row and every popup above it. */
+    --ws-popup-gap: var(--ws-space-8);
+    --ws-r-pill: calc(999px * var(--ws-scale));
+    --ws-r-panel: var(--ws-space-16);
+    --ws-r-item: calc(var(--ws-unit) * 2.5);
+    --ws-text-xs: calc(var(--ws-unit) * 2.75);
+    --ws-text-sm: calc(var(--ws-unit) * 3);
+    --ws-text-md: calc(var(--ws-unit) * 3.25);
+    --ws-text-lg: calc(var(--ws-unit) * 3.5);
+    --ws-line-xs: 1.25;
+    --ws-line-sm: 1.33;
+    --ws-line-md: 1.38;
+    --ws-line-lg: 1.43;
+
+    /* Raw palettes. */
+    --ws-day-band: #0c101a;
+    --ws-day-ink: #f4f6fb;
+    --ws-day-ink-muted: #c9cfdc;
+    --ws-day-accent: #ffc247;
+    --ws-day-accent-ink: #10131c;
+    --ws-day-track: #8d96ab;
+    --ws-day-ring: #ffc247;
+    --ws-day-popover: #111623;
+    --ws-day-pass-day: #6ccbff;
+    --ws-day-pass-night: #8074f2;
+
+    --ws-night-band: #0c101a;
+    --ws-night-ink: #f4f6fb;
+    --ws-night-ink-muted: #c9cfdc;
+    --ws-night-accent: #5ef0b5;
+    --ws-night-accent-ink: #10131c;
+    --ws-night-track: #8d96ab;
+    --ws-night-ring: #5ef0b5;
+    --ws-night-popover: #111623;
+    --ws-night-pass-day: #6ccbff;
+    --ws-night-pass-night: var(--ws-day-pass-night);
+
+    --ws-twilight-band: #0c101a;
+    --ws-twilight-ink: #f4f6fb;
+    --ws-twilight-ink-muted: #c9cfdc;
+    --ws-twilight-accent: #ff8a70;
+    --ws-twilight-accent-ink: #10131c;
+    --ws-twilight-track: #8d96ab;
+    --ws-twilight-ring: #ff8a70;
+    --ws-twilight-popover: #111623;
+    --ws-twilight-pass-day: #6ccbff;
+    --ws-twilight-pass-night: var(--ws-day-pass-night);
+
+    --ws-aurora-green: #5cf2a6;
+    --ws-aurora-violet: #9d7bff;
+    --ws-terminator: #fff6d6;
+
+    --ws-rail-inset: var(--ws-space-12);
+    --ws-rail-tint: 67%;
+    --ws-rail-wash: linear-gradient(to top, color-mix(in oklab, var(--ws-accent) 9%, transparent), transparent 70%);
+    --ws-edge: rgb(255 255 255 / 0.12);
+    --ws-glass-shadow: inset 0 0 0 1px var(--ws-edge), inset 0 1px 0 rgb(255 255 255 / 0.14),
+      0 0 0 1px rgb(255 255 255 / 0.14), 0 1px 3px rgb(0 0 0 / 0.2), 0 6px 14px -6px rgb(0 0 0 / 0.3);
+    --ws-glass-filter: blur(24px) saturate(1.7) brightness(0.72);
+    --ws-surface: var(--ws-band);
+    --ws-surface-popup: var(--ws-popover);
+    /* Stronger than the initial 40% track tint to retain 3:1 contrast over either footage extreme. */
+    --ws-strip-rest: color-mix(in oklab, var(--ws-track) 75%, var(--ws-ink));
+    /* Muted pass tokens retain their hue instead of mixing with the neutral track. */
+    --ws-strip-day: var(--ws-pass-day);
+    --ws-strip-night: var(--ws-pass-night);
+    --ws-strip-night-edge: #d9d4ff;
+    /*
+     * Two curves. Arrivals use a spring that overshoots ~6% late in the move, exits a plain ease-out. Both start
+     * gently enough that the halfway frame is a visible in-between, not an already-landed shape.
+     */
+    --ws-ease-out: cubic-bezier(0.3, 0, 0.2, 1);
+    --ws-ease-spring: cubic-bezier(0.4, 0.1, 0.25, 1.3);
+    --ws-ease-morph: cubic-bezier(0.6, 0, 0.3, 1);
+    --ws-dur-fast: 120ms;
+    --ws-dur: 200ms;
+    --ws-dur-slow: 320ms;
+    --ws-rail-duration: var(--ws-dur);
+    --ws-strip-duration: 160ms;
+    --ws-icon-duration: 280ms;
+    --ws-morph-duration: 320ms;
+    --ws-icon-stagger: 60ms;
+    --ws-button-spring: var(--ws-ease-spring);
+    /* Motion scale: micro feedback, surfaces in (spring) and out (ease-out). */
+    --ws-dur-micro: 150ms;
+    --ws-dur-in: 260ms;
+    --ws-dur-out: 160ms;
+    /* Settings page navigation: panel resize and page slide share this clock (the Default skin's 250 ms, fast-start ease-out). */
+    --ws-dur-nav: 250ms;
+    --ws-ease-nav: cubic-bezier(0, 0, 0.2, 1);
+
+    --ws-font: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --ws-font-numeric: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", Menlo, Consolas, monospace;
+    --ws-font-mono-digits: tabular-nums;
+    --ws-palette-duration: 600ms;
+
+    /* Active palette (fallback: night). */
+    --ws-band: var(--ws-night-band);
+    --ws-ink: var(--ws-night-ink);
+    --ws-ink-muted: var(--ws-night-ink-muted);
+    --ws-palette-accent: var(--ws-night-accent);
+    --ws-palette-accent-ink: var(--ws-night-accent-ink);
+    --ws-track: var(--ws-night-track);
+    --ws-ring: var(--ws-night-ring);
+    --ws-popover: var(--ws-night-popover);
+    --ws-pass-day: var(--ws-night-pass-day);
+    --ws-pass-night: var(--ws-night-pass-night);
+
+    /* Public properties win over the palette. */
+    --ws-accent: var(--media-accent-color, var(--ws-palette-accent));
+    --ws-accent-ink: var(--media-accent-text-color, var(--ws-palette-accent-ink));
+
+    /* Video.js tokens the component styles read. The band's own surface uses `--ws-band` directly. */
+    --media-background: transparent;
+    --media-foreground: var(--ws-ink);
+    --media-accent: var(--ws-accent);
+    --media-accent-foreground: var(--ws-accent-ink);
+    --media-primary: var(--ws-accent);
+    --media-primary-foreground: var(--ws-accent-ink);
+    --media-muted: var(--ws-track);
+    --media-muted-foreground: var(--ws-ink-muted);
+    --media-popover: var(--ws-popover);
+    --media-popover-foreground: var(--ws-ink);
+    --media-ring: var(--ws-ring);
+    --media-button-highlight: color-mix(in srgb, var(--ws-ink) 12%, transparent);
+    --media-popover-boundary-offset: calc(var(--media-spacing) * 3);
+    --media-tooltip-boundary-offset: var(--media-popover-boundary-offset);
+    --media-scale: var(--ws-scale);
+    --media-video-border-radius: var(--media-border-radius, var(--ws-r-panel));
+    --media-control-radius: var(--ws-r-pill);
+    --media-controls-radius: var(--ws-r-pill);
+    --media-menu-item-radius: var(--ws-r-item);
+    --media-popup-radius: var(--ws-r-panel);
+    --media-dialog-radius: var(--ws-r-panel);
+    --media-scrollbar-thumb-color: var(--ws-track);
+    --media-shadow-surface: var(--ws-glass-shadow);
+    --media-shadow-surface-inset: none;
+    --media-shadow-thumb: 0 1px 3px rgb(0 0 0 / 0.35);
+    --media-backdrop-filter-surface: none;
+    --media-backdrop-filter-indicator: none;
+    --media-backdrop-filter-dialog: none;
+
+    font-family: var(--media-font-family, var(--ws-font));
+    font-size: var(--ws-text-lg);
+    line-height: var(--ws-line-lg);
+  }
+
+  .media-skin[data-theme="window-seat"]:is(:fullscreen, [data-ws-large]) {
+    --ws-scale: 1.25;
+  }
+
+  @media (pointer: coarse) {
+    .media-skin[data-theme="window-seat"] {
+      --ws-icon: calc(var(--ws-unit) * 5.5);
+      --ws-control: max(44px, calc(var(--ws-unit) * 11));
+    }
+  }
+
+  @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .media-skin[data-theme="window-seat"] {
+      --ws-surface: color-mix(in oklab, var(--ws-band) var(--ws-rail-tint), transparent);
+      --ws-surface-popup: color-mix(in oklab, var(--ws-popover) 68%, transparent);
+    }
+  }
+
+  /* No daylight data: follow the inherited color scheme. */
+  @supports (color: light-dark(red, red)) {
+    .media-skin[data-theme="window-seat"]:not([data-daylight]) {
+      --ws-band: light-dark(var(--ws-day-band), var(--ws-night-band));
+      --ws-ink: light-dark(var(--ws-day-ink), var(--ws-night-ink));
+      --ws-ink-muted: light-dark(var(--ws-day-ink-muted), var(--ws-night-ink-muted));
+      --ws-palette-accent: light-dark(var(--ws-day-accent), var(--ws-night-accent));
+      --ws-palette-accent-ink: light-dark(var(--ws-day-accent-ink), var(--ws-night-accent-ink));
+      --ws-track: light-dark(var(--ws-day-track), var(--ws-night-track));
+      --ws-ring: light-dark(var(--ws-day-ring), var(--ws-night-ring));
+      --ws-popover: light-dark(var(--ws-day-popover), var(--ws-night-popover));
+      --ws-pass-day: light-dark(var(--ws-day-pass-day), var(--ws-night-pass-day));
+      --ws-pass-night: light-dark(var(--ws-day-pass-night), var(--ws-night-pass-night));
+    }
+  }
+
+  /*
+   * With daylight data, accent and ring go through registered colours (see video/window-seat.css) so they
+   * cross-fade at the day/night line. The no-data fallback keeps light-dark(), which a registered colour cannot hold.
+   */
+  .media-skin[data-theme="window-seat"][data-daylight] {
+    --ws-palette-accent: var(--ws-accent-fade);
+    --ws-ring: var(--ws-ring-fade);
+  }
+
+  .media-skin[data-theme="window-seat"][data-daylight="day"] {
+    color-scheme: dark;
+    --ws-band: var(--ws-day-band);
+    --ws-ink: var(--ws-day-ink);
+    --ws-ink-muted: var(--ws-day-ink-muted);
+    --ws-accent-fade: var(--ws-day-accent);
+    --ws-palette-accent-ink: var(--ws-day-accent-ink);
+    --ws-track: var(--ws-day-track);
+    --ws-ring-fade: var(--ws-day-ring);
+    --ws-popover: var(--ws-day-popover);
+    --ws-pass-day: var(--ws-day-pass-day);
+    --ws-pass-night: var(--ws-day-pass-night);
+  }
+
+  .media-skin[data-theme="window-seat"][data-daylight="night"] {
+    color-scheme: dark;
+    --ws-band: var(--ws-night-band);
+    --ws-ink: var(--ws-night-ink);
+    --ws-ink-muted: var(--ws-night-ink-muted);
+    --ws-accent-fade: var(--ws-night-accent);
+    --ws-palette-accent-ink: var(--ws-night-accent-ink);
+    --ws-track: var(--ws-night-track);
+    --ws-ring-fade: var(--ws-night-ring);
+    --ws-popover: var(--ws-night-popover);
+    --ws-pass-day: var(--ws-night-pass-day);
+    --ws-pass-night: var(--ws-night-pass-night);
+  }
+
+  .media-skin[data-theme="window-seat"][data-daylight="twilight"] {
+    color-scheme: dark;
+    --ws-band: var(--ws-twilight-band);
+    --ws-ink: var(--ws-twilight-ink);
+    --ws-ink-muted: var(--ws-twilight-ink-muted);
+    --ws-accent-fade: var(--ws-twilight-accent);
+    --ws-palette-accent-ink: var(--ws-twilight-accent-ink);
+    --ws-track: var(--ws-twilight-track);
+    --ws-ring-fade: var(--ws-twilight-ring);
+    --ws-popover: var(--ws-twilight-popover);
+    --ws-pass-day: var(--ws-twilight-pass-day);
+    --ws-pass-night: var(--ws-twilight-pass-night);
+  }
+}
+
+@layer base.preferences {
+  @media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
+    .media-skin[data-theme="window-seat"] {
+      --ws-surface: var(--ws-band);
+      --ws-surface-popup: var(--ws-popover);
+      --ws-glass-filter: none;
+      --ws-rail-wash: none;
+    }
+  }
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .media-skin[data-theme="window-seat"] {
+      --ws-glass-filter: none;
+      --ws-rail-wash: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .media-skin[data-theme="window-seat"] {
+      --ws-dur-fast: 0ms;
+      --ws-dur: 0ms;
+      --ws-dur-slow: 0ms;
+      --ws-strip-duration: 0ms;
+      --ws-icon-stagger: 0ms;
+      --ws-icon-duration: 0ms;
+      --ws-morph-duration: 0ms;
+      --ws-dur-micro: 0ms;
+      --ws-dur-in: 0ms;
+      --ws-dur-out: 0ms;
+      --ws-dur-nav: 0ms;
+      --ws-palette-duration: 0ms;
+    }
+  }
+
+  /* Higher contrast: pure ink, stronger track. */
+  @media (prefers-contrast: more) {
+    .media-skin[data-theme="window-seat"] {
+      --ws-ink-muted: var(--ws-ink);
+      --ws-track: var(--ws-ink-muted);
+      --ws-strip-rest: var(--ws-ink);
+      --media-button-highlight: rgb(127 127 127 / 0.3);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .media-skin[data-theme="window-seat"] {
+      --ws-band: Canvas;
+      --ws-ink: CanvasText;
+      --ws-ink-muted: CanvasText;
+      --ws-accent: Highlight;
+      --ws-accent-ink: HighlightText;
+      --ws-track: GrayText;
+      --ws-ring: Highlight;
+      --ws-popover: Canvas;
+      --ws-pass-day: CanvasText;
+      --ws-pass-night: GrayText;
+      --media-background: Canvas;
+      --media-popover: Canvas;
+      --media-popover-foreground: CanvasText;
+      --media-foreground: CanvasText;
+      --media-accent: Highlight;
+      --media-primary: Highlight;
+      --media-primary-foreground: HighlightText;
+      --media-ring: Highlight;
+    }
+  }
+}

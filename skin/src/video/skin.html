@@ -1,0 +1,555 @@
+<media-container class="media-skin media-container media-video" data-theme="window-seat" data-preset="video">
+<!-- Add a compatible media component here. -->
+<ws-orbit hidden></ws-orbit>
+<ws-daylight hidden></ws-daylight>
+<ws-motion hidden></ws-motion>
+<ws-preferences hidden></ws-preferences>
+<ws-aurora aria-hidden="true"></ws-aurora>
+<ws-overview aria-hidden="true" hidden></ws-overview>
+<media-poster class="media-poster">
+<img alt="" decoding="async" class="media-poster-image">
+</media-poster>
+<media-error-dialog>
+<media-dialog-backdrop class="media-dialog-backdrop">
+</media-dialog-backdrop>
+<media-dialog-popup class="media-dialog-popup">
+<media-dialog-title class="media-dialog-title">
+</media-dialog-title>
+<media-dialog-description class="media-dialog-description">
+</media-dialog-description>
+<media-dialog-close class="media-button media-dialog-close">
+</media-dialog-close>
+</media-dialog-popup>
+</media-error-dialog>
+<media-dialog class="ws-flight-dialog">
+<media-dialog-backdrop class="media-dialog-backdrop"></media-dialog-backdrop>
+<media-dialog-popup class="media-dialog-popup ws-flight-popup">
+<media-dialog-title class="media-dialog-title ws-panel-heading">
+<media-text token="windowSeat.flightLog">Overflight</media-text>
+</media-dialog-title>
+<media-dialog-close class="media-button media-dialog-close">
+<media-icon family="window-seat" name="close" class="media-button-icon"></media-icon>
+<media-text class="ws-sr-only" token="windowSeat.closeFlightLog">Close Overflight</media-text>
+</media-dialog-close>
+<ws-flight-log>
+<ol class="ws-chapter-list" role="list" hidden></ol>
+<!-- Supply the clip description, credits and source links here when mounting the skin. -->
+<div class="ws-flight-notes"></div>
+</ws-flight-log>
+</media-dialog-popup>
+</media-dialog>
+<media-controls>
+<media-controls-backdrop class="video-controls-backdrop">
+</media-controls-backdrop>
+<media-controls-group class="media-buffering-indicator-controls">
+<media-buffering-indicator class="media-buffering-indicator media-buffering-indicator-backdrop">
+<svg class="ws-icon ws-icon-buffering media-buffering-indicator-spinner-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle class="ws-buffer-ring" cx="10" cy="10" r="7"/><g class="ws-buffer-dot"><circle cx="10" cy="3" r="1.65" fill="currentColor" stroke="none"/><path d="M7 3h6"/></g></svg>
+</media-buffering-indicator>
+</media-controls-group>
+<media-controls-content class="video-controls-content">
+<media-tooltip-group delay="300" close-delay="0" timeout="400">
+<media-controls-group class="video-controls-top">
+<ws-callout class="ws-callout" hidden>
+<span class="ws-callout-label">
+<span class="ws-callout-dot" aria-hidden="true"></span>
+<span class="ws-callout-place"><span class="ws-callout-over" hidden></span><span class="ws-callout-name"></span></span>
+<span class="ws-callout-coordinates" hidden><span aria-hidden="true">· </span><bdi dir="ltr"></bdi></span>
+</span>
+<span class="ws-callout-announcer ws-sr-only" aria-live="polite" aria-atomic="true"></span>
+</ws-callout>
+</media-controls-group>
+<media-buffering-indicator class="video-controls-buffering">
+<media-controls-group class="video-controls-center">
+<media-seek-button seconds="-10" class="media-button video-controls-center-button video-controls-center-seek" id="vjs-COsQCb_P-0-5-trigger">
+<div class="media-seek-button-content">
+<svg class="ws-icon ws-icon-seek" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false"><g class="ws-seek-arrow"><g transform="translate(20) scale(-1 1)"><path d="M15.8 5.3a7.4 7.4 0 1 0 1.6 5.3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M18 2.9a.65.65 0 0 0-1.16-.4l-2.3 3.75a.65.65 0 0 0 .55.99h2.26a.65.65 0 0 0 .65-.65Z"/></g></g><g class="ws-seek-number" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="m6.45 8.75 1.65-1.15v5.7"/><rect x="10.25" y="7.6" width="3.4" height="5.7" rx="1.65"/></g></svg>
+</div>
+</media-seek-button>
+<media-tooltip delay="300" trigger="vjs-COsQCb_P-0-5-trigger" disabled side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip-label>
+</media-tooltip-label>
+<media-tooltip-shortcut class="media-tooltip-shortcut">
+</media-tooltip-shortcut>
+</media-tooltip>
+<media-play-button class="media-button media-play-button video-controls-center-button video-controls-center-play" id="vjs-COsQCb_P-0-6-trigger">
+<span class="ws-icon ws-icon-play" aria-hidden="true"><span class="ws-play-shape"><span class="ws-play-half ws-play-left"></span><span class="ws-play-half ws-play-right"></span></span><svg class="ws-replay" viewBox="0 0 20 20" fill="currentColor" focusable="false"><path d="M15.8 5.3a7.4 7.4 0 1 0 1.6 5.3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M18 2.9a.65.65 0 0 0-1.16-.4l-2.3 3.75a.65.65 0 0 0 .55.99h2.26a.65.65 0 0 0 .65-.65Z"/></svg></span>
+</media-play-button>
+<media-tooltip delay="300" trigger="vjs-COsQCb_P-0-6-trigger" disabled side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip-label>
+</media-tooltip-label>
+<media-tooltip-shortcut class="media-tooltip-shortcut">
+</media-tooltip-shortcut>
+</media-tooltip>
+<media-seek-button seconds="10" class="media-button video-controls-center-button video-controls-center-seek" id="vjs-COsQCb_P-0-7-trigger">
+<div class="media-seek-button-content">
+<svg class="ws-icon ws-icon-seek" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false"><g class="ws-seek-arrow"><path d="M15.8 5.3a7.4 7.4 0 1 0 1.6 5.3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M18 2.9a.65.65 0 0 0-1.16-.4l-2.3 3.75a.65.65 0 0 0 .55.99h2.26a.65.65 0 0 0 .65-.65Z"/></g><g class="ws-seek-number" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="m6.45 8.75 1.65-1.15v5.7"/><rect x="10.25" y="7.6" width="3.4" height="5.7" rx="1.65"/></g></svg>
+</div>
+</media-seek-button>
+<media-tooltip delay="300" trigger="vjs-COsQCb_P-0-7-trigger" disabled side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip-label>
+</media-tooltip-label>
+<media-tooltip-shortcut class="media-tooltip-shortcut">
+</media-tooltip-shortcut>
+</media-tooltip>
+</media-controls-group>
+</media-buffering-indicator>
+<div class="video-controls-bottom video-controls-video-bottom">
+<media-controls-group class="video-controls-row">
+<media-controls-group class="video-controls-group video-controls-start">
+<media-play-button class="media-button media-play-button" id="vjs-COsQCb_P-0-8-trigger">
+<span class="ws-icon ws-icon-play" aria-hidden="true"><span class="ws-play-shape"><span class="ws-play-half ws-play-left"></span><span class="ws-play-half ws-play-right"></span></span><svg class="ws-replay" viewBox="0 0 20 20" fill="currentColor" focusable="false"><path d="M15.8 5.3a7.4 7.4 0 1 0 1.6 5.3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M18 2.9a.65.65 0 0 0-1.16-.4l-2.3 3.75a.65.65 0 0 0 .55.99h2.26a.65.65 0 0 0 .65-.65Z"/></svg></span>
+</media-play-button>
+<media-tooltip delay="300" trigger="vjs-COsQCb_P-0-8-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip-label>
+</media-tooltip-label>
+<media-tooltip-shortcut class="media-tooltip-shortcut">
+</media-tooltip-shortcut>
+</media-tooltip>
+<media-seek-button seconds="-10" class="media-button ws-band-seek" id="ws-seek-back-trigger">
+<div class="media-seek-button-content">
+<svg class="ws-icon ws-icon-seek" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false"><g class="ws-seek-arrow"><g transform="translate(20) scale(-1 1)"><path d="M15.8 5.3a7.4 7.4 0 1 0 1.6 5.3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M18 2.9a.65.65 0 0 0-1.16-.4l-2.3 3.75a.65.65 0 0 0 .55.99h2.26a.65.65 0 0 0 .65-.65Z"/></g></g><g class="ws-seek-number" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="m6.45 8.75 1.65-1.15v5.7"/><rect x="10.25" y="7.6" width="3.4" height="5.7" rx="1.65"/></g></svg>
+</div>
+</media-seek-button>
+<media-tooltip delay="300" trigger="ws-seek-back-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip-label>
+</media-tooltip-label>
+<media-tooltip-shortcut class="media-tooltip-shortcut">
+</media-tooltip-shortcut>
+</media-tooltip>
+<media-seek-button seconds="10" class="media-button ws-band-seek" id="ws-seek-forward-trigger">
+<div class="media-seek-button-content">
+<svg class="ws-icon ws-icon-seek" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false"><g class="ws-seek-arrow"><path d="M15.8 5.3a7.4 7.4 0 1 0 1.6 5.3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M18 2.9a.65.65 0 0 0-1.16-.4l-2.3 3.75a.65.65 0 0 0 .55.99h2.26a.65.65 0 0 0 .65-.65Z"/></g><g class="ws-seek-number" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round"><path d="m6.45 8.75 1.65-1.15v5.7"/><rect x="10.25" y="7.6" width="3.4" height="5.7" rx="1.65"/></g></svg>
+</div>
+</media-seek-button>
+<media-tooltip delay="300" trigger="ws-seek-forward-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip-label>
+</media-tooltip-label>
+<media-tooltip-shortcut class="media-tooltip-shortcut">
+</media-tooltip-shortcut>
+</media-tooltip>
+<media-mute-button commandfor="vjs-nnOyqmK2-0-popup" class="media-button media-mute-button" id="vjs-COsQCb_P-0-9-trigger">
+<svg class="ws-icon ws-icon-volume" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
+<g class="ws-speaker-body"><path transform="translate(0 .8) scale(.0625 .072)" d="M163.52,24.81a8,8,0,0,0-8.43.88L85.25,80H40A16,16,0,0,0,24,96v64a16,16,0,0,0,16,16H85.25l69.84,54.31A7.94,7.94,0,0,0,160,232a8,8,0,0,0,8-8V32A8,8,0,0,0,163.52,24.81Z"/></g>
+<g class="ws-wave ws-wave-1"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M12.1 8.15a3 3 0 0 1 0 3.7"/></g>
+<g class="ws-wave ws-wave-2"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M14 6.5a5.4 5.4 0 0 1 0 7"/></g>
+<g class="ws-wave ws-wave-3"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="M15.9 4.9a7.9 7.9 0 0 1 0 10.2"/></g>
+<g class="ws-mute-slash" fill="none" stroke-linecap="round"><path stroke="var(--ws-band)" stroke-width="4" pathLength="1" d="M3.25 3.25 16.75 16.75"/><path stroke="currentColor" stroke-width="1.9" pathLength="1" d="M3.25 3.25 16.75 16.75"/></g>
+</svg>
+</media-mute-button>
+<media-tooltip delay="300" trigger="vjs-COsQCb_P-0-9-trigger" disabled side="top" sticky class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip-label>
+</media-tooltip-label>
+<media-tooltip-shortcut class="media-tooltip-shortcut">
+</media-tooltip-shortcut>
+</media-tooltip>
+<media-volume-popover open-on-hover delay="200" close-delay="100" side="top" class="media-popup media-popup-safe-area media-volume-popover-popup" id="vjs-nnOyqmK2-0-popup">
+<media-volume-slider class="media-volume-slider" orientation="vertical" thumb-alignment="edge">
+<media-slider-track class="media-volume-slider-track">
+<media-slider-fill class="media-volume-slider-fill">
+</media-slider-fill>
+</media-slider-track>
+<media-slider-thumb class="media-volume-slider-thumb">
+</media-slider-thumb>
+</media-volume-slider>
+</media-volume-popover>
+<ws-volume-focus hidden></ws-volume-focus>
+<media-time-group class="media-time-group">
+<media-time class="media-time-toggle" type="current" toggle>
+</media-time>
+<media-time class="media-time-current-value" type="current">
+</media-time>
+<media-time-separator class="media-time-separator">
+</media-time-separator>
+<media-time class="media-time-duration-value" type="duration">
+</media-time>
+</media-time-group>
+</media-controls-group>
+<div class="video-controls-slider-row">
+<media-time-slider class="media-time-slider" thumb-alignment="center" dir="ltr">
+<media-time-slider-chapters class="media-time-slider-chapters">
+<template>
+<div class="media-time-slider-chapter">
+<media-slider-track class="media-time-slider-track">
+<media-slider-buffer class="media-time-slider-buffer">
+</media-slider-buffer>
+<media-slider-fill class="media-time-slider-fill">
+</media-slider-fill>
+</media-slider-track>
+</div>
+</template>
+</media-time-slider-chapters>
+<media-slider-thumb class="media-time-slider-thumb ws-iss-thumb">
+<svg class="ws-iss" data-marker="station" viewBox="0 0 34 20" aria-hidden="true" focusable="false"><g class="ws-iss-knockout"><g><path d="M1 1h4v7H1zm6 0h4v7H7zm16 0h4v7h-4zm6 0h4v7h-4zM1 12h4v7H1zm6 0h4v7H7zm16 0h4v7h-4zm6 0h4v7h-4z"/></g><g><rect x="2" y="9" width="30" height="2" rx=".6"/><path d="M2.5 7h1v6h-1zm6 0h1v6h-1zm16 0h1v6h-1zm6 0h1v6h-1z"/><rect x="12" y="7" width="10" height="6" rx="1.4"/><rect x="15.5" y="3.5" width="3" height="13" rx="1"/><rect x="19" y="5.5" width="3" height="4" rx=".8"/><rect x="11" y="11" width="4" height="4" rx=".8"/></g></g><g class="ws-iss-arrays"><path d="M1 1h4v7H1zm6 0h4v7H7zm16 0h4v7h-4zm6 0h4v7h-4zM1 12h4v7H1zm6 0h4v7H7zm16 0h4v7h-4zm6 0h4v7h-4z"/></g><g class="ws-iss-body"><rect x="2" y="9" width="30" height="2" rx=".6"/><path d="M2.5 7h1v6h-1zm6 0h1v6h-1zm16 0h1v6h-1zm6 0h1v6h-1z"/><rect x="12" y="7" width="10" height="6" rx="1.4"/><rect x="15.5" y="3.5" width="3" height="13" rx="1"/><rect x="19" y="5.5" width="3" height="4" rx=".8"/><rect x="11" y="11" width="4" height="4" rx=".8"/></g></svg><svg class="ws-iss" data-marker="plane" viewBox="0 0 34 20" aria-hidden="true" focusable="false"><g class="ws-iss-knockout"><rect x="3" y="8.6" width="28" height="2.8" rx="1.4"/><path d="M31 10c1.5 0 2.5-.4 2.5-.4L31 8.6z"/><path d="M13 8.8 8.5 1.5h3l8.5 7.3zm0 2.4-4.5 7.3h3l8.5-7.3zM3.5 9 1.5 4.5h2.2L8 9zm0 2-2 4.5h2.2L8 11z"/></g><g class="ws-iss-body"><rect x="3" y="8.6" width="28" height="2.8" rx="1.4"/><path d="M31 10c1.5 0 2.5-.4 2.5-.4L31 8.6z"/></g><g class="ws-iss-arrays"><path d="M13 8.8 8.5 1.5h3l8.5 7.3zm0 2.4-4.5 7.3h3l8.5-7.3zM3.5 9 1.5 4.5h2.2L8 9zm0 2-2 4.5h2.2L8 11z"/></g></svg><svg class="ws-iss" data-marker="ship" viewBox="0 0 34 20" aria-hidden="true" focusable="false"><g class="ws-iss-knockout"><path d="M1.5 11h31l-4.5 6.5H5.5z"/><path d="M8 5.5h11v5.5H8zm12.5 1h3.5v4.5h-3.5zM10 3h2v2.5h-2z"/></g><g class="ws-iss-body"><path d="M1.5 11h31l-4.5 6.5H5.5z"/></g><g class="ws-iss-arrays"><path d="M8 5.5h11v5.5H8zm12.5 1h3.5v4.5h-3.5zM10 3h2v2.5h-2z"/></g></svg><svg class="ws-iss" data-marker="car" viewBox="0 0 34 20" aria-hidden="true" focusable="false"><g class="ws-iss-knockout"><path d="M2 15.5v-3.7l3.2-1.3 3.6-4.5h11l5.5 4.5 5.8 1.3v3.7z"/><circle cx="9" cy="15.5" r="2.8"/><circle cx="25" cy="15.5" r="2.8"/><path d="M10.2 7.3h4.3v3.1H7.6zm5.8 0h3.4l3.8 3.1H16z"/></g><g class="ws-iss-body"><path d="M2 15.5v-3.7l3.2-1.3 3.6-4.5h11l5.5 4.5 5.8 1.3v3.7z"/><circle cx="9" cy="15.5" r="2.8"/><circle cx="25" cy="15.5" r="2.8"/></g><g class="ws-iss-arrays"><path d="M10.2 7.3h4.3v3.1H7.6zm5.8 0h3.4l3.8 3.1H16z"/></g></svg><svg class="ws-iss" data-marker="helicopter" viewBox="0 0 34 20" aria-hidden="true" focusable="false"><g class="ws-iss-knockout"><path d="M14 8.5h8.5a6 4.6 0 0 1 0 9.2H17a5 5 0 0 1-5-5zM2 11h11v2.2H2zm16.3-4.3h1.6v2h-1.6zM13 18.6h12v1.2H13z"/><path d="M7 4.6h24v1.8H7zM1 8h2.2v8H1zm21.5 2.5h3.2a3.4 3.4 0 0 1 1.8 3H22.5z"/></g><g class="ws-iss-body"><path d="M14 8.5h8.5a6 4.6 0 0 1 0 9.2H17a5 5 0 0 1-5-5zM2 11h11v2.2H2zm16.3-4.3h1.6v2h-1.6zM13 18.6h12v1.2H13z"/></g><g class="ws-iss-arrays"><path d="M7 4.6h24v1.8H7zM1 8h2.2v8H1zm21.5 2.5h3.2a3.4 3.4 0 0 1 1.8 3H22.5z"/></g></svg><svg class="ws-iss" data-marker="train" viewBox="0 0 34 20" aria-hidden="true" focusable="false"><g class="ws-iss-knockout"><path d="M2 4.5h24.5c3.5 0 6 3.4 6 7v3.5H2z"/><circle cx="7.5" cy="16.8" r="1.9"/><circle cx="13.5" cy="16.8" r="1.9"/><circle cx="25" cy="16.8" r="1.9"/><path d="M5 7h4.5v3.5H5zm7 0h4.5v3.5H12zm7 0h4.5v3.5H19zm7.5 0h1.8a4 4 0 0 1 2.4 3.5h-4.2z"/></g><g class="ws-iss-body"><path d="M2 4.5h24.5c3.5 0 6 3.4 6 7v3.5H2z"/><circle cx="7.5" cy="16.8" r="1.9"/><circle cx="13.5" cy="16.8" r="1.9"/><circle cx="25" cy="16.8" r="1.9"/></g><g class="ws-iss-arrays"><path d="M5 7h4.5v3.5H5zm7 0h4.5v3.5H12zm7 0h4.5v3.5H19zm7.5 0h1.8a4 4 0 0 1 2.4 3.5h-4.2z"/></g></svg><svg class="ws-iss" data-marker="dot" viewBox="0 0 34 20" aria-hidden="true" focusable="false"><g class="ws-iss-knockout"><circle cx="17" cy="10" r="6.5"/><circle cx="17" cy="10" r="3.5"/></g><g class="ws-iss-body"><circle cx="17" cy="10" r="6.5"/></g><g class="ws-iss-arrays"><circle cx="17" cy="10" r="3.5"/></g></svg><span class="ws-iss ws-marker-custom" data-marker="custom" aria-hidden="true"></span>
+</media-slider-thumb>
+<media-slider-preview class="media-time-slider-preview">
+<media-slider-thumbnail class="media-slider-thumbnail">
+<img alt="" aria-hidden="true" decoding="async" class="media-slider-thumbnail-image">
+</media-slider-thumbnail>
+<div class="media-time-slider-preview-meta">
+<div class="media-time-slider-preview-label">
+<media-slider-value class="media-time-slider-value" type="pointer">
+</media-slider-value>
+<media-time-slider-chapter-title class="media-time-slider-chapter-title">
+</media-time-slider-chapter-title>
+</div>
+</div>
+</media-slider-preview>
+</media-time-slider>
+</div>
+<media-controls-group class="video-controls-group video-controls-end">
+<div class="ws-chapter-controls">
+<button type="button" class="media-button ws-chapter-trigger ws-flight-trigger" aria-keyshortcuts="P N" hidden>
+<svg class="ws-icon ws-icon-flight-log" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false"><path class="ws-tone-2 ws-flight-route" pathLength="1" d="M4.2 15.6C8 17.7 14.4 17.7 14.4 12.6" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/><circle cx="4.2" cy="15.6" r="2"/><path class="ws-flight-pin" fill-rule="evenodd" d="M14.4 2.4a3.2 3.2 0 0 1 3.2 3.2c0 2.4-2.1 4.5-3.2 6.8-1.1-2.3-3.2-4.4-3.2-6.8a3.2 3.2 0 0 1 3.2-3.2ZM14.4 4.3a1.3 1.3 0 1 0 0 2.6 1.3 1.3 0 1 0 0-2.6Z"/></svg>
+<media-text class="ws-sr-only" token="windowSeat.flightLog">Overflight</media-text>
+</button>
+<media-tooltip delay="300" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-text token="windowSeat.flightLog">Overflight</media-text>
+<media-tooltip-shortcut class="media-tooltip-shortcut">P</media-tooltip-shortcut>
+</media-tooltip>
+<button type="button" class="media-button ws-overview-trigger" aria-pressed="false" aria-keyshortcuts="G" hidden>
+<svg class="ws-icon ws-icon-globe" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false"><circle class="ws-tone-2" cx="10" cy="10" r="7"/><g class="ws-globe-orbit"><ellipse cx="10" cy="10" rx="8.6" ry="3.1" transform="rotate(-24 10 10)" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="17.3" cy="6.75" r="1.9"/></g></svg>
+<media-text class="ws-sr-only" token="windowSeat.overview">Overview globe</media-text>
+</button>
+<media-tooltip delay="300" side="top" align="end" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-text token="windowSeat.overview">Overview globe</media-text>
+<media-tooltip-shortcut class="media-tooltip-shortcut">G</media-tooltip-shortcut>
+</media-tooltip>
+<button type="button" class="ws-porthole-size" hidden></button>
+</div>
+
+<media-captions-button class="media-button media-captions-button" id="vjs-COsQCb_P-0-10-trigger">
+<svg class="ws-icon ws-icon-captions" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false"><rect class="ws-tone-2" x="1.5" y="3.5" width="17" height="13" rx="3"/><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path class="ws-captions-c" pathLength="1" d="M8.14 8.44A1.9 1.9 0 1 0 8.14 11.56"/><path class="ws-captions-c" pathLength="1" d="M14.83 8.44A1.9 1.9 0 1 0 14.83 11.56"/></g></svg>
+</media-captions-button>
+<media-tooltip delay="300" trigger="vjs-COsQCb_P-0-10-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip-label>
+</media-tooltip-label>
+<media-tooltip-shortcut class="media-tooltip-shortcut">
+</media-tooltip-shortcut>
+</media-tooltip>
+<button type="button" commandfor="vjs-Rq0iN2VF-h-popup" class="media-button ws-settings-trigger" id="vjs-COsQCb_P-0-11-trigger">
+<svg class="ws-icon ws-icon-gear" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false"><g class="ws-gear"><path transform="scale(.078125)" d="M237.94,107.21a8,8,0,0,0-3.89-5.4l-29.83-17-.12-33.62a8,8,0,0,0-2.83-6.08,111.91,111.91,0,0,0-36.72-20.67,8,8,0,0,0-6.46.59L128,41.85,97.88,25a8,8,0,0,0-6.47-.6A111.92,111.92,0,0,0,54.73,45.15a8,8,0,0,0-2.83,6.07l-.15,33.65-29.83,17a8,8,0,0,0-3.89,5.4,106.47,106.47,0,0,0,0,41.56,8,8,0,0,0,3.89,5.4l29.83,17,.12,33.63a8,8,0,0,0,2.83,6.08,111.91,111.91,0,0,0,36.72,20.67,8,8,0,0,0,6.46-.59L128,214.15,158.12,231a7.91,7.91,0,0,0,3.9,1,8.09,8.09,0,0,0,2.57-.42,112.1,112.1,0,0,0,36.68-20.73,8,8,0,0,0,2.83-6.07l.15-33.65,29.83-17a8,8,0,0,0,3.89-5.4A106.47,106.47,0,0,0,237.94,107.21ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z"/><circle class="ws-tone-2" cx="10" cy="10" r="2.7"/></g></svg>
+<media-text class="media-settings-button-label" token="menu.settings">Settings</media-text>
+</button>
+<media-tooltip delay="300" trigger="vjs-COsQCb_P-0-11-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-text token="menu.settings">Settings</media-text>
+</media-tooltip>
+<media-menu side="top" align="center" class="media-popup media-popup-safe-area media-menu-popup" id="vjs-Rq0iN2VF-h-popup">
+<media-menu-content class="media-menu-content">
+<media-menu-item commandfor="vjs-Rq0iN2VF-1-content" class="media-menu-item">
+<media-icon family="window-seat" name="switches" class="media-menu-trigger-icon">
+</media-icon>
+<media-text token="menu.quality">Quality</media-text>
+<span class="media-menu-hint">
+<span data-part="value" class="media-menu-hint-label">
+</span>
+<media-icon family="window-seat" name="chevron" class="media-menu-forward-chevron">
+</media-icon>
+</span>
+</media-menu-item>
+<media-menu-content class="media-menu-content" id="vjs-Rq0iN2VF-1-content">
+<media-menu-item class="media-menu-back-item">
+<media-icon family="window-seat" name="chevron" class="media-menu-back-chevron">
+</media-icon>
+<media-text token="menu.quality">Quality</media-text>
+</media-menu-item>
+<media-menu-separator class="media-menu-separator">
+</media-menu-separator>
+<media-quality-radio-group class="media-menu-radio-group">
+<template>
+<media-menu-radio-item class="media-menu-radio-item">
+<span>
+<span data-part="label">
+</span>
+<sup data-part="tier" class="media-menu-tier">
+</sup>
+</span>
+<span data-part="badge" class="media-menu-badge">
+</span>
+<media-menu-item-indicator force-mount class="media-menu-indicator">
+<media-icon family="window-seat" name="check" class="media-menu-radio-icon">
+</media-icon>
+</media-menu-item-indicator>
+</media-menu-radio-item>
+</template>
+</media-quality-radio-group>
+</media-menu-content>
+<media-menu-item commandfor="vjs-Rq0iN2VF-5-content" class="media-menu-item">
+<media-icon family="window-seat" name="speech" class="media-menu-trigger-icon">
+</media-icon>
+<media-text token="menu.audio">Audio</media-text>
+<span class="media-menu-hint">
+<span data-part="value" class="media-menu-hint-label">
+</span>
+<media-icon family="window-seat" name="chevron" class="media-menu-forward-chevron">
+</media-icon>
+</span>
+</media-menu-item>
+<media-menu-content class="media-menu-content" id="vjs-Rq0iN2VF-5-content">
+<media-menu-item class="media-menu-back-item">
+<media-icon family="window-seat" name="chevron" class="media-menu-back-chevron">
+</media-icon>
+<media-text token="menu.audio">Audio</media-text>
+</media-menu-item>
+<media-menu-separator class="media-menu-separator">
+</media-menu-separator>
+<media-audio-track-radio-group class="media-menu-radio-group">
+<template>
+<media-menu-radio-item class="media-menu-radio-item">
+<span data-part="label">
+</span>
+<media-menu-item-indicator force-mount class="media-menu-indicator">
+<media-icon family="window-seat" name="check" class="media-menu-radio-icon">
+</media-icon>
+</media-menu-item-indicator>
+</media-menu-radio-item>
+</template>
+</media-audio-track-radio-group>
+</media-menu-content>
+<media-menu-item commandfor="vjs-Rq0iN2VF-9-content" class="media-menu-item">
+<media-icon family="window-seat" name="speed" class="media-menu-trigger-icon">
+</media-icon>
+<media-text token="menu.speed">Speed</media-text>
+<span class="media-menu-hint">
+<span data-part="value" class="media-menu-hint-label">
+</span>
+<media-icon family="window-seat" name="chevron" class="media-menu-forward-chevron">
+</media-icon>
+</span>
+</media-menu-item>
+<media-menu-content class="media-menu-content" id="vjs-Rq0iN2VF-9-content">
+<media-menu-item class="media-menu-back-item">
+<media-icon family="window-seat" name="chevron" class="media-menu-back-chevron">
+</media-icon>
+<media-text token="menu.speed">Speed</media-text>
+</media-menu-item>
+<media-menu-separator class="media-menu-separator">
+</media-menu-separator>
+<media-playback-rate-radio-group class="media-menu-radio-group">
+<template>
+<media-menu-radio-item class="media-menu-radio-item">
+<span data-part="label">
+</span>
+<media-menu-item-indicator force-mount class="media-menu-indicator">
+<media-icon family="window-seat" name="check" class="media-menu-radio-icon">
+</media-icon>
+</media-menu-item-indicator>
+</media-menu-radio-item>
+</template>
+</media-playback-rate-radio-group>
+</media-menu-content>
+<media-menu-item commandfor="vjs-Rq0iN2VF-d-content" class="media-menu-item">
+<media-icon family="window-seat" name="captions-off" class="media-menu-trigger-icon">
+</media-icon>
+<media-text token="menu.captions">Captions</media-text>
+<span class="media-menu-hint">
+<span data-part="value" class="media-menu-hint-label">
+</span>
+<media-icon family="window-seat" name="chevron" class="media-menu-forward-chevron">
+</media-icon>
+</span>
+</media-menu-item>
+<media-menu-content class="media-menu-content" id="vjs-Rq0iN2VF-d-content">
+<media-menu-item class="media-menu-back-item">
+<media-icon family="window-seat" name="chevron" class="media-menu-back-chevron">
+</media-icon>
+<media-text token="menu.captions">Captions</media-text>
+</media-menu-item>
+<media-menu-separator class="media-menu-separator">
+</media-menu-separator>
+<media-captions-radio-group class="media-menu-radio-group">
+<template>
+<media-menu-radio-item class="media-menu-radio-item">
+<span data-part="label">
+</span>
+<span data-part="badge" class="media-menu-badge">
+</span>
+<media-menu-item-indicator force-mount class="media-menu-indicator">
+<media-icon family="window-seat" name="check" class="media-menu-radio-icon">
+</media-icon>
+</media-menu-item-indicator>
+</media-menu-radio-item>
+</template>
+</media-captions-radio-group>
+</media-menu-content>
+<media-menu-checkbox-item class="media-menu-item ws-aurora-setting" aria-keyshortcuts="A" checked>
+<svg class="ws-icon ws-icon-aurora media-menu-trigger-icon" viewBox="0 0 20 20" fill="currentColor" stroke="currentColor" stroke-width=".8" stroke-linejoin="round" aria-hidden="true" focusable="false"><g class="ws-curtains"><path class="ws-tone-2" d="M3 5.4c1.2-1 2.4-1 3.6 0v7.6c-1.2-1-2.4-1-3.6 0Z"/><path d="M8.2 3.4c1.2-1 2.4-1 3.6 0v10.6c-1.2-1-2.4-1-3.6 0Z"/><path class="ws-tone-2" d="M13.4 5.4c1.2-1 2.4-1 3.6 0v7.6c-1.2-1-2.4-1-3.6 0Z"/></g><path d="M2.8 15.6q7.2 2.6 14.4 0v1.2q-7.2 2.4-14.4 0Z"/></svg>
+<media-text token="windowSeat.aurora">Aurora</media-text>
+<span class="media-menu-hint" aria-hidden="true">
+<kbd class="media-tooltip-shortcut">A</kbd>
+<media-menu-item-indicator force-mount class="media-menu-indicator">
+<media-icon family="window-seat" name="check" class="media-menu-radio-icon"></media-icon>
+</media-menu-item-indicator>
+</span>
+</media-menu-checkbox-item>
+<media-menu-item class="media-menu-item ws-compact-action" data-action=".ws-flight-trigger" hidden>
+<media-text token="windowSeat.flightLog">Overflight</media-text>
+</media-menu-item>
+<media-menu-item class="media-menu-item ws-compact-action" data-action=".ws-overview-trigger" hidden>
+<media-text token="windowSeat.overview">Overview globe</media-text>
+</media-menu-item>
+<media-menu-item class="media-menu-item ws-compact-action" data-action="media-pip-button" hidden>
+<media-icon family="window-seat" name="pip-enter" class="media-menu-trigger-icon"></media-icon>
+<span data-action-label></span>
+</media-menu-item>
+<media-menu-item class="media-menu-item ws-compact-action" data-action="media-airplay-button" hidden>
+<media-icon family="window-seat" name="airplay-enter" class="media-menu-trigger-icon"></media-icon>
+<span data-action-label></span>
+</media-menu-item>
+<media-menu-item class="media-menu-item ws-compact-action" data-action="media-cast-button" hidden>
+<media-icon family="window-seat" name="cast-enter" class="media-menu-trigger-icon"></media-icon>
+<span data-action-label></span>
+</media-menu-item>
+</media-menu-content>
+</media-menu>
+<ws-compact-actions hidden></ws-compact-actions>
+<media-airplay-button class="media-button media-airplay-button" id="vjs-COsQCb_P-0-trigger">
+<media-icon family="window-seat" name="airplay-enter" class="media-button-icon media-airplay-button-enter-icon">
+</media-icon>
+<media-icon family="window-seat" name="airplay-exit" class="media-button-icon media-airplay-button-exit-icon">
+</media-icon>
+</media-airplay-button>
+<media-tooltip delay="300" trigger="vjs-COsQCb_P-0-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip-label>
+</media-tooltip-label>
+<media-tooltip-shortcut class="media-tooltip-shortcut">
+</media-tooltip-shortcut>
+</media-tooltip>
+<media-cast-button class="media-button media-cast-button" id="vjs-COsQCb_P-0-2-trigger">
+<media-icon family="window-seat" name="cast-enter" class="media-button-icon media-cast-button-enter-icon">
+</media-icon>
+<media-icon family="window-seat" name="cast-exit" class="media-button-icon media-cast-button-exit-icon">
+</media-icon>
+</media-cast-button>
+<media-tooltip delay="300" trigger="vjs-COsQCb_P-0-2-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip-label>
+</media-tooltip-label>
+<media-tooltip-shortcut class="media-tooltip-shortcut">
+</media-tooltip-shortcut>
+</media-tooltip>
+<media-pip-button class="media-button media-pip-button" id="vjs-COsQCb_P-0-3-trigger">
+<svg class="ws-icon ws-icon-pip" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false"><rect class="ws-tone-2" x="1.5" y="3.5" width="17" height="13" rx="3"/><rect class="ws-pip-window" x="4" y="6" width="7" height="5" rx="1.4"/></svg>
+</media-pip-button>
+<media-tooltip delay="300" trigger="vjs-COsQCb_P-0-3-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip-label>
+</media-tooltip-label>
+<media-tooltip-shortcut class="media-tooltip-shortcut">
+</media-tooltip-shortcut>
+</media-tooltip>
+<media-fullscreen-button class="media-button media-fullscreen-button" id="vjs-COsQCb_P-0-4-trigger">
+<svg class="ws-icon ws-icon-fullscreen" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false"><rect class="ws-tone-2" x="6.5" y="6.5" width="7" height="7" rx="1.6"/>
+<g class="ws-fullscreen-enter"><g class="ws-corner ws-corner-bl"><path transform="scale(.078125)" d="M93.66,202.34A8,8,0,0,1,88,216H48a8,8,0,0,1-8-8V168a8,8,0,0,1,13.66-5.66Z"/></g>
+<g class="ws-corner ws-corner-tl"><path transform="scale(.078125)" d="M88,40H48a8,8,0,0,0-8,8V88a8,8,0,0,0,13.66,5.66l40-40A8,8,0,0,0,88,40Z"/></g>
+<g class="ws-corner ws-corner-br"><path transform="scale(.078125)" d="M211.06,160.61a8,8,0,0,0-8.72,1.73l-40,40A8,8,0,0,0,168,216h40a8,8,0,0,0,8-8V168A8,8,0,0,0,211.06,160.61Z"/></g>
+<g class="ws-corner ws-corner-tr"><path transform="scale(.078125)" d="M208,40H168a8,8,0,0,0-5.66,13.66l40,40A8,8,0,0,0,216,88V48A8,8,0,0,0,208,40Z"/></g></g>
+<g class="ws-fullscreen-exit"><g class="ws-corner ws-corner-tr"><path transform="scale(.078125)" d="M152,96V48a8,8,0,0,1,13.66-5.66l48,48A8,8,0,0,1,208,104H160A8,8,0,0,1,152,96Z"/></g>
+<g class="ws-corner ws-corner-bl"><path transform="scale(.078125)" d="M96,152H48a8,8,0,0,0-5.66,13.66l48,48A8,8,0,0,0,104,208V160A8,8,0,0,0,96,152Z"/></g>
+<g class="ws-corner ws-corner-tl"><path transform="scale(.078125)" d="M99.06,40.61a8,8,0,0,0-8.72,1.73l-48,48A8,8,0,0,0,48,104H96a8,8,0,0,0,8-8V48A8,8,0,0,0,99.06,40.61Z"/></g>
+<g class="ws-corner ws-corner-br"><path transform="scale(.078125)" d="M208,152H160a8,8,0,0,0-8,8v48a8,8,0,0,0,13.66,5.66l48-48A8,8,0,0,0,208,152Z"/></g></g>
+</svg>
+</media-fullscreen-button>
+<media-tooltip delay="300" trigger="vjs-COsQCb_P-0-4-trigger" side="top" class="media-popup media-popup-safe-area media-tooltip-popup">
+<media-tooltip-label>
+</media-tooltip-label>
+<media-tooltip-shortcut class="media-tooltip-shortcut">
+</media-tooltip-shortcut>
+</media-tooltip>
+</media-controls-group>
+</media-controls-group>
+</div>
+</media-tooltip-group>
+</media-controls-content>
+</media-controls>
+<media-hotkey keys="Space" action="togglePaused">
+</media-hotkey>
+<media-hotkey keys="k" action="togglePaused">
+</media-hotkey>
+<media-hotkey keys="m" action="toggleMuted">
+</media-hotkey>
+<media-hotkey keys="ArrowRight" action="seekStep">
+</media-hotkey>
+<media-hotkey keys="ArrowLeft" action="seekStep">
+</media-hotkey>
+<media-hotkey keys="l" action="seekStep">
+</media-hotkey>
+<media-hotkey keys="j" action="seekStep">
+</media-hotkey>
+<media-hotkey keys="ArrowUp" action="volumeStep">
+</media-hotkey>
+<media-hotkey keys="ArrowDown" action="volumeStep">
+</media-hotkey>
+<media-hotkey keys="0-9" action="seekToPercent">
+</media-hotkey>
+<media-hotkey keys="Home" action="seekToPercent" value="0">
+</media-hotkey>
+<media-hotkey keys="End" action="seekToPercent" value="100">
+</media-hotkey>
+<media-hotkey keys=">" action="speedUp">
+</media-hotkey>
+<media-hotkey keys="<" action="speedDown">
+</media-hotkey>
+<media-hotkey keys="f" action="toggleFullscreen">
+</media-hotkey>
+<media-hotkey keys="c" action="toggleSubtitles">
+</media-hotkey>
+<media-hotkey keys="i" action="togglePictureInPicture">
+</media-hotkey>
+<media-gesture type="tap" action="togglePaused" pointer="mouse" region="center">
+</media-gesture>
+<media-gesture type="tap" action="toggleControls" pointer="touch">
+</media-gesture>
+<media-gesture type="doubletap" action="seekStep" region="left">
+</media-gesture>
+<media-gesture type="doubletap" action="toggleFullscreen" region="center">
+</media-gesture>
+<media-gesture type="doubletap" action="seekStep" region="right">
+</media-gesture>
+<media-status-announcer class="media-status-announcer">
+</media-status-announcer>
+<ws-signal class="ws-sr-only" role="status" aria-atomic="true"></ws-signal>
+<div aria-hidden="true" class="media-indicator-group">
+<media-volume-indicator class="media-indicator media-volume-indicator">
+<media-volume-indicator-fill class="media-volume-indicator-fill">
+<media-icon family="window-seat" name="volume-high" class="media-volume-indicator-icon media-volume-indicator-high-icon">
+</media-icon>
+<media-icon family="window-seat" name="volume-low" class="media-volume-indicator-icon media-volume-indicator-low-icon">
+</media-icon>
+<media-icon family="window-seat" name="volume-off" class="media-volume-indicator-icon media-volume-indicator-off-icon">
+</media-icon>
+<span class="ws-volume-level" aria-hidden="true"></span>
+<media-volume-indicator-value class="media-volume-indicator-value">
+</media-volume-indicator-value>
+</media-volume-indicator-fill>
+</media-volume-indicator>
+<media-status-indicator actions="togglePaused,toggleSubtitles,toggleFullscreen,togglePictureInPicture" class="media-indicator media-status-indicator">
+<svg class="ws-icon ws-status-play" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path fill="currentColor" d="M6 4.3a.9.9 0 0 1 1.35-.78l8.5 5.7a.9.9 0 0 1 0 1.56l-8.5 5.7A.9.9 0 0 1 6 15.7Z"/></svg>
+<svg class="ws-icon ws-status-pause" viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path fill="currentColor" d="M5.6 3h2.2l1 1v12l-1 1H5.6l-1-1V4zm6.6 0h2.2l1 1v12l-1 1h-2.2l-1-1V4z"/></svg>
+<media-icon family="window-seat" name="captions-on" class="media-status-indicator-icon media-status-indicator-captions-on-icon">
+</media-icon>
+<media-icon family="window-seat" name="captions-off" class="media-status-indicator-icon media-status-indicator-captions-off-icon">
+</media-icon>
+<media-icon family="window-seat" name="fullscreen-enter" class="media-status-indicator-icon media-status-indicator-fullscreen-enter-icon">
+</media-icon>
+<media-icon family="window-seat" name="fullscreen-exit" class="media-status-indicator-icon media-status-indicator-fullscreen-exit-icon">
+</media-icon>
+<media-icon family="window-seat" name="pip-enter" class="media-status-indicator-icon media-status-indicator-pip-enter-icon">
+</media-icon>
+<media-icon family="window-seat" name="pip-exit" class="media-status-indicator-icon media-status-indicator-pip-exit-icon">
+</media-icon>
+<media-status-indicator-value>
+</media-status-indicator-value>
+</media-status-indicator>
+<media-seek-indicator class="media-indicator media-seek-indicator">
+<media-icon family="window-seat" name="chevron" class="media-seek-indicator-icon">
+</media-icon>
+<media-seek-indicator-value class="media-seek-indicator-value">
+</media-seek-indicator-value>
+</media-seek-indicator>
+</div>
+<div class="ws-pip-scrim">
+<div class="ws-pip-card">
+<svg class="ws-icon ws-pip-glyph" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false"><rect class="ws-tone-2" x="1.5" y="3.5" width="17" height="13" rx="3"/><rect x="9" y="9" width="7" height="5" rx="1.4"/></svg>
+<p class="ws-pip-title"><media-text token="windowSeat.pipPlaying">Playing in picture-in-picture</media-text></p>
+<media-pip-button class="media-button ws-pip-return" label="Bring back"><media-text token="windowSeat.pipBringBack">Bring back</media-text></media-pip-button>
+</div>
+</div>
+</media-container>

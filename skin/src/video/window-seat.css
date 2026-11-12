@@ -1,0 +1,2278 @@
+/*
+ * Window Seat layout and component styling, layered over the Scaffold base in skin.css.
+ *
+ * The floating glass rail and callout share the native controls visibility state.
+ */
+
+/*
+ * Registered so they interpolate: the day/night accent cross-fades, the route line fills and the hotkey
+ * volume bar slides. Without @property support (Firefox before 128) they simply snap.
+ */
+@property --ws-accent-fade { syntax: "<color>"; inherits: true; initial-value: #5ef0b5; }
+@property --ws-ring-fade { syntax: "<color>"; inherits: true; initial-value: #5ef0b5; }
+@property --ws-route-fill { syntax: "<percentage>"; inherits: false; initial-value: 0%; }
+@property --ws-volume-bar { syntax: "<percentage>"; inherits: false; initial-value: 0%; }
+
+@layer components {
+  @keyframes ws-globe-enter { from { opacity: 0; transform: scale(.6); } }
+  @keyframes ws-icon-orbit { to { transform: rotate(360deg); } }
+  @keyframes ws-terminator-sweep {
+    from { opacity: 1; transform: scaleX(.035); }
+    to { opacity: 0; transform: scaleX(1); }
+  }
+  @keyframes ws-icon-curtains {
+    from { transform: skewX(-4deg) translateX(-.4px); }
+    to { transform: skewX(4deg) translateX(.4px); }
+  }
+
+  /* One-shots. State changes between two resting shapes are transitions further down. */
+  @keyframes ws-play-pop-in { from { transform: scale(.86); } }
+  @keyframes ws-play-pop-out { from { transform: scale(.86); } }
+  @keyframes ws-draw-in { from { stroke-dashoffset: 1; } }
+  @keyframes ws-hub-pulse { 50% { transform: scale(1.45); } }
+  @keyframes ws-route-draw { from { stroke-dashoffset: 1; } }
+  @keyframes ws-pin-drop {
+    0% { transform: translateY(-3.5px); }
+    55% { transform: translateY(.6px); }
+    100% { transform: none; }
+  }
+  @keyframes ws-frame-grow { 40% { transform: scale(1.22); } }
+  @keyframes ws-frame-shrink { 40% { transform: scale(.72); } }
+  @keyframes ws-node-ring { from { transform: scale(.55); } }
+  /* Kept outside @scope: keyframes declared inside it are ignored. */
+  @keyframes ws-pip-card-in { from { opacity: 0; transform: translateY(8px) scale(.96); } }
+  @keyframes ws-pip-fade-in { from { opacity: 0; } }
+
+  @keyframes ws-airglow {
+    0% {
+      opacity: 0;
+      transform: scaleY(0.25);
+    }
+
+    44% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0;
+      transform: scaleY(1);
+    }
+  }
+
+  @scope (.media-skin[data-theme="window-seat"][data-preset="video"]) {
+    /* ---------- Sizing tokens ---------- */
+    :scope {
+      --ws-gap: var(--ws-space-4);
+      --ws-picture-start: var(--ws-picture-left, 0px);
+      --ws-picture-end: var(--ws-picture-right, 0px);
+      --ws-picture-base: var(--ws-picture-bottom, 0px);
+      --ws-strip-height: var(--ws-island-height);
+      --ws-band-height: var(--ws-island-height);
+      --ws-hairline: color-mix(in oklab, var(--ws-ink) 14%, transparent);
+      --media-caption-controls-y: calc(-1 * (var(--ws-band-height) + var(--ws-rail-inset) + var(--ws-picture-base) + var(--ws-space-12) + env(safe-area-inset-bottom)));
+
+      background-color: var(--ws-band);
+      transition:
+        background-color var(--ws-palette-duration),
+        --ws-accent-fade var(--ws-palette-duration) ease-in-out,
+        --ws-ring-fade var(--ws-palette-duration) ease-in-out;
+    }
+
+    :scope:dir(rtl) {
+      --ws-picture-start: var(--ws-picture-right, 0px);
+      --ws-picture-end: var(--ws-picture-left, 0px);
+    }
+
+    :scope.media-container:not(:focus-visible) {
+      outline: none;
+    }
+
+    :scope:fullscreen {
+      --ws-rail-inset: 20px;
+    }
+
+    /* Positioned while hidden too, so the porthole can close back toward its button. */
+    :scope:fullscreen ws-overview {
+      position: absolute;
+      inset-inline-end: max(calc(var(--ws-picture-end) + var(--ws-rail-inset)), env(safe-area-inset-right));
+      bottom: calc(var(--ws-picture-base) + var(--ws-island-height) + var(--ws-rail-inset) + var(--ws-island-gap) + env(safe-area-inset-bottom));
+      box-sizing: border-box;
+      /* Small, medium and large grow up and inward from the docked corner; large stops at 45% of the picture height. */
+      height: min(calc(min(18%, 13rem) * var(--ws-porthole-scale, 1)), calc((100% - var(--ws-picture-top, 0px) - var(--ws-picture-bottom, 0px)) * .45));
+      aspect-ratio: 1;
+      padding: var(--ws-space-4);
+      border-radius: var(--ws-r-pill);
+      background: var(--ws-rail-wash), var(--ws-surface);
+      -webkit-backdrop-filter: var(--ws-glass-filter);
+      backdrop-filter: var(--ws-glass-filter);
+      box-shadow: var(--ws-glass-shadow);
+      z-index: 25;
+      pointer-events: none;
+      cursor: pointer;
+      --ws-globe-origin-x: calc(100% - var(--ws-globe-anchor, var(--ws-control)));
+      transform-origin: var(--ws-globe-origin-x) calc(100% + var(--ws-island-gap) + var(--ws-island-height) / 2);
+    }
+
+    :scope:fullscreen ws-overview:not([hidden]) {
+      pointer-events: auto;
+    }
+
+    ws-overview[data-size="medium"] { --ws-porthole-scale: 1.5; }
+    ws-overview[data-size="large"] { --ws-porthole-scale: 2.2; }
+
+    /* With the islands gone, the porthole settles into the corner they leave behind. */
+    :scope:fullscreen:not([data-terminator-sweep], :has(media-play-button[data-paused], :focus-visible, [data-open], [aria-expanded="true"])):has(.video-controls-content:not([data-visible])) ws-overview {
+      translate: 0 calc(var(--ws-island-height) + var(--ws-island-gap));
+    }
+
+    /* The size button lives beside the globe toggle for keyboard and screen readers; its focus ring shows on the porthole. */
+    .ws-porthole-size {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      border: 0;
+      clip-path: inset(50%);
+      overflow: hidden;
+    }
+
+    :scope:has(.ws-porthole-size:focus-visible) ws-overview {
+      outline: 2px solid var(--ws-ring);
+      outline-offset: 2px;
+    }
+
+    :scope:fullscreen:dir(rtl) ws-overview {
+      --ws-globe-origin-x: var(--ws-globe-anchor, var(--ws-control));
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      :scope:fullscreen ws-overview:not([hidden]) {
+        animation: ws-globe-enter 380ms var(--ws-ease-spring) both;
+        transition:
+          translate 260ms var(--ws-ease-out),
+          height 260ms var(--ws-ease-morph);
+      }
+
+      /* Closing keeps the box rendered until the shrink ends (browsers without discrete transitions just hide it). */
+      :scope:fullscreen ws-overview[hidden] {
+        opacity: 0;
+        transform: scale(.6);
+        transition:
+          opacity var(--ws-dur-out) var(--ws-ease-out),
+          transform var(--ws-dur-in) var(--ws-ease-out),
+          display var(--ws-dur-in) allow-discrete;
+      }
+    }
+
+    ws-overview canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+    }
+
+    ws-aurora {
+      display: none;
+      position: absolute;
+      inset-inline: 0;
+      inset-block-end: calc(var(--ws-band-height) + var(--ws-rail-inset));
+      block-size: min(42%, 16rem);
+      z-index: 25;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 54% 95% at 24% 100%, color-mix(in srgb, var(--ws-aurora-green) 42%, transparent), transparent),
+        radial-gradient(ellipse 50% 90% at 76% 100%, color-mix(in srgb, var(--ws-aurora-violet) 40%, transparent), transparent);
+      transform-origin: center bottom;
+    }
+
+    :scope[data-aurora] ws-aurora {
+      display: block;
+      animation: ws-airglow var(--ws-aurora-duration, 6s) ease-in-out both;
+    }
+
+    /* Hairline frame from the public border property, drawn above the media. */
+    :scope::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 45;
+      pointer-events: none;
+      border-radius: inherit;
+      box-shadow: inset 0 0 0 1px var(--media-border-color, transparent);
+    }
+
+    /* Overlays cover the whole picture. */
+    .media-poster,
+    .video-controls-backdrop {
+      inset-block-end: 0;
+      height: auto;
+    }
+
+    .media-indicator-group,
+    .media-buffering-indicator {
+      inset: var(--ws-picture-top, 0px) var(--ws-picture-right, 0px) var(--ws-picture-base) var(--ws-picture-left, 0px);
+    }
+
+    .video-controls-backdrop {
+      background-image: none;
+    }
+
+    /* Breakpoints follow the picture even when the fullscreen frame is much wider. */
+    .video-controls-content {
+      inset-inline: var(--ws-picture-start) var(--ws-picture-end);
+      container: media-root / inline-size;
+    }
+
+    :scope[data-ws-picture-stacked] {
+      --ws-strip-height: 28px;
+      --ws-band-height: calc(var(--ws-island-height) + var(--ws-island-gap) + var(--ws-strip-height));
+    }
+
+    @media (pointer: coarse) {
+      :scope[data-ws-picture-stacked] { --ws-strip-height: 44px; }
+    }
+
+    /* ---------- Floating rail ---------- */
+    .video-controls-bottom.video-controls-video-bottom {
+      gap: 0;
+      inset-inline-start: max(var(--ws-rail-inset), calc(env(safe-area-inset-left) - var(--ws-picture-start)));
+      inset-inline-end: max(var(--ws-rail-inset), calc(env(safe-area-inset-right) - var(--ws-picture-end)));
+      bottom: calc(var(--ws-picture-base) + var(--ws-rail-inset) + env(safe-area-inset-bottom));
+      padding: 0;
+      background: none;
+    }
+
+    /*
+     * Show and hide move each island, not the rail: they slide 8 px and fade, start to end, 30 ms apart.
+     * The callout pill moves the other way. Each state carries its own timing (spring in, ease-out away).
+     */
+    .video-controls-bottom .video-controls-row > *,
+    .video-controls-top {
+      --ws-island-delay: 0ms;
+      transition:
+        opacity var(--ws-dur) var(--ws-ease-out) var(--ws-island-delay),
+        transform var(--ws-dur-in) var(--ws-ease-spring) var(--ws-island-delay);
+    }
+
+    /* The base skin fades the whole rail; here the islands fade on their own. */
+    .video-controls-content.video-controls-content:not([data-visible]) .video-controls-bottom.video-controls-video-bottom {
+      opacity: 1;
+    }
+
+    .video-controls-row > :nth-child(2) { --ws-island-delay: 30ms; }
+    .video-controls-row > :nth-child(3) { --ws-island-delay: 60ms; }
+
+    :scope:is([data-terminator-sweep], :has(:focus-visible, [data-open], [aria-expanded="true"]))
+      .video-controls-content :is(.video-controls-bottom, .video-controls-top) {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    :scope:not([data-terminator-sweep], :has(media-play-button[data-paused], :focus-visible, [data-open], [aria-expanded="true"]))
+      .video-controls-content:not([data-visible]) :is(.video-controls-bottom, .video-controls-top) {
+      pointer-events: none;
+    }
+
+    :scope:not([data-terminator-sweep], :has(media-play-button[data-paused], :focus-visible, [data-open], [aria-expanded="true"]))
+      .video-controls-content:not([data-visible]) :is(.video-controls-bottom .video-controls-row > *, .video-controls-top) {
+      opacity: 0;
+      transform: translateY(8px);
+      transition:
+        opacity var(--ws-dur-out) var(--ws-ease-out) var(--ws-island-delay),
+        transform var(--ws-dur-out) var(--ws-ease-out) var(--ws-island-delay);
+    }
+
+    :scope:not([data-terminator-sweep], :has(media-play-button[data-paused], :focus-visible, [data-open], [aria-expanded="true"]))
+      .video-controls-content:not([data-visible]) .video-controls-top {
+      transform: translateY(-8px);
+    }
+
+    /* Keyboard focus brings the controls back at once. */
+    :scope:has(:focus-visible) .video-controls-content :is(.video-controls-row > *, .video-controls-top) {
+      transition: none;
+    }
+
+    .video-controls-slider-row {
+      height: var(--ws-strip-height);
+      padding-inline: var(--ws-space-24);
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      :scope[data-terminator-sweep] .video-controls-slider-row::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        background: radial-gradient(ellipse at var(--ws-sweep-position) center, color-mix(in srgb, var(--ws-accent) 35%, transparent), transparent 75%);
+        transform-origin: var(--ws-sweep-position) center;
+        animation: ws-terminator-sweep 700ms var(--ws-ease-out) both;
+      }
+    }
+
+    .video-controls-row {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: var(--ws-island-gap);
+    }
+
+    .video-controls-row > * {
+      box-sizing: border-box;
+      background: var(--ws-rail-wash), var(--ws-surface);
+      -webkit-backdrop-filter: var(--ws-glass-filter);
+      backdrop-filter: var(--ws-glass-filter);
+      color: var(--ws-ink);
+      border-radius: calc(var(--ws-island-height) / 2);
+      box-shadow: var(--ws-glass-shadow);
+    }
+
+    .video-controls-row > :has([data-open], :focus-visible) {
+      z-index: 1;
+    }
+
+    .video-controls-row > .video-controls-group {
+      height: var(--ws-island-height);
+      padding-inline: var(--ws-island-padding);
+    }
+
+    @container media-root (width < 44rem) {
+      :scope > * {
+        --ws-strip-height: 28px;
+        --ws-band-height: calc(var(--ws-island-height) + var(--ws-island-gap) + var(--ws-strip-height));
+        --media-caption-controls-y: calc(-1 * (var(--ws-band-height) + var(--ws-rail-inset) + var(--ws-picture-base) + var(--ws-space-12) + env(safe-area-inset-bottom)));
+      }
+
+      .video-controls-row { grid-template-columns: max-content minmax(0, 1fr) max-content; }
+
+      .video-controls-slider-row {
+        grid-area: 1 / 1 / 2 / -1;
+        border-radius: calc(var(--ws-strip-height) / 2);
+      }
+
+      .video-controls-start { grid-area: 2 / 1; }
+      .video-controls-end { grid-area: 2 / 3; }
+    }
+
+    @container media-root (width < 30rem) {
+      :scope > * {
+        --ws-rail-inset: 8px;
+        --ws-gap: calc(var(--media-spacing) * 0.5);
+      }
+
+      :scope:fullscreen > * {
+        --ws-rail-inset: 20px;
+      }
+
+      .video-controls-row > .video-controls-group {
+        padding-inline: var(--ws-space-4);
+      }
+    }
+
+    @media (pointer: coarse) {
+      @container media-root (width < 44rem) {
+        :scope > * { --ws-strip-height: 44px; }
+      }
+    }
+
+    :scope[data-controls-visible] > :is(video, mux-video),
+    :scope[data-terminator-sweep] > :is(video, mux-video),
+    :scope:has(:focus-visible, [data-open], [aria-expanded="true"]) > :is(video, mux-video) {
+      --media-caption-track-y: var(--media-caption-controls-y);
+    }
+
+    @container media-root (width < 20rem) {
+      .media-time-toggle {
+        display: grid;
+        place-items: center;
+        min-inline-size: var(--ws-control);
+        min-block-size: var(--ws-control);
+      }
+    }
+
+    .video-controls-group {
+      gap: calc(var(--media-spacing) * 0.5);
+    }
+
+    .video-controls-group:dir(rtl),
+    .video-controls-top:dir(rtl) {
+      flex-direction: row;
+    }
+
+    /* ---------- Buttons ---------- */
+    .media-button {
+      width: var(--ws-control);
+      height: var(--ws-control);
+      border-radius: var(--media-control-radius);
+      color: inherit;
+      isolation: isolate;
+      transition:
+        background-color var(--media-duration),
+        color var(--ws-dur-micro);
+    }
+
+    /*
+     * Two discs sit behind each glyph: ::after is the accent disc of an active button, ::before the hover disc
+     * (fine pointers only; on coarse pointers the base skin uses ::before to widen the hit area).
+     * Both scale in from below full size, so they grow rather than appear.
+     */
+    .media-button::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      border-radius: inherit;
+      pointer-events: none;
+      background-color: var(--ws-accent);
+      opacity: 0;
+      transform: scale(.6);
+      transition:
+        opacity var(--ws-dur-out) var(--ws-ease-out),
+        transform var(--ws-dur-out) var(--ws-ease-out);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .media-button::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        border-radius: inherit;
+        pointer-events: none;
+        background-color: var(--ws-hover-disc, color-mix(in srgb, var(--ws-ink) 17%, transparent));
+        opacity: 0;
+        transform: scale(.8);
+        transition:
+          opacity var(--ws-dur-micro) var(--ws-ease-out),
+          transform var(--ws-dur-micro) var(--ws-ease-out);
+      }
+
+      .media-button:hover { background-color: var(--media-background); }
+
+      .media-button:hover::before {
+        opacity: 1;
+        transform: none;
+        transition-duration: var(--ws-dur-micro), var(--ws-dur-in);
+        transition-timing-function: var(--ws-ease-out), var(--ws-ease-spring);
+      }
+    }
+
+    /* Press: the glyph dips and springs back on release; the disc and hit area stay put. */
+    .media-button > :not(media-tooltip) {
+      transition: scale var(--ws-dur-in) var(--ws-ease-spring);
+    }
+
+    .media-button:active > :not(media-tooltip) {
+      scale: .88;
+      transition: scale var(--ws-dur-micro) var(--ws-ease-out);
+    }
+
+    .media-button-icon,
+    .media-button-icon-base,
+    .media-menu-trigger-icon,
+    .media-menu-radio-icon,
+    .media-menu-forward-chevron,
+    .media-menu-back-chevron,
+    .media-status-indicator-icon,
+    .media-seek-indicator-icon,
+    .media-volume-indicator-icon {
+      width: var(--ws-icon);
+      height: var(--ws-icon);
+    }
+
+    @media (hover: hover) {
+      .media-button:hover {
+        color: inherit;
+      }
+    }
+
+    @media (hover: hover) and (pointer: coarse) {
+      .media-button:hover {
+        background-color: var(--media-button-highlight);
+      }
+    }
+
+    :is(media-cast-button, media-airplay-button, media-pip-button):is([data-availability="unsupported"], [data-availability="unavailable"]) {
+      display: none;
+    }
+
+    .media-button:focus-visible,
+    .media-time-toggle:focus-visible {
+      background-color: var(--media-button-highlight);
+      outline: 2px solid var(--ws-ring);
+      outline-offset: 2px;
+    }
+
+    .media-button[disabled],
+    .media-button[data-disabled],
+    .media-button[aria-disabled="true"] {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
+    /* Seeking 10 s stays on J/L, the arrow keys, double-tap and the centre pad; the bar keeps to play, volume and time. */
+    .ws-band-seek {
+      display: none;
+    }
+
+
+    /* ---------- Centre pad (touch only) ---------- */
+    @media (pointer: fine) {
+      .video-controls-center {
+        display: none !important;
+      }
+    }
+
+    .video-controls-center {
+      top: calc((100% + var(--ws-picture-top, 0px) - var(--ws-picture-base) - var(--ws-band-height) - var(--ws-rail-inset)) / 2);
+      gap: calc(var(--media-spacing) * 4);
+    }
+
+    .video-controls-center-play {
+      width: var(--ws-control) !important;
+      height: var(--ws-control) !important;
+    }
+
+    .video-controls-center-button {
+      background-color: color-mix(in oklab, var(--ws-band) 88%, transparent) !important;
+      color: var(--ws-ink);
+      border-radius: var(--media-control-radius);
+      box-shadow: var(--media-shadow-surface);
+    }
+
+    @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+      .video-controls-center-button {
+        background-color: var(--ws-band) !important;
+      }
+    }
+
+    /* ---------- State-driven inline icons ---------- */
+    .ws-icon {
+      display: block;
+      width: var(--ws-icon);
+      height: var(--ws-icon);
+      grid-area: 1 / 1;
+      flex-shrink: 0;
+      overflow: visible;
+    }
+
+    .ws-icon > g,
+    .ws-corner {
+      transform-box: view-box;
+      transform-origin: center;
+    }
+
+    /* Solid two-tone: a secondary layer sits behind or beside the main shape. */
+    .ws-tone-2,
+    .ws-wave-2 path,
+    .ws-wave-3 path {
+      opacity: 0.45;
+    }
+
+    .ws-play-shape,
+    .ws-replay {
+      transition: opacity var(--ws-icon-duration) var(--ws-ease-out);
+    }
+
+    .ws-icon-play {
+      position: relative;
+    }
+
+    .ws-play-shape,
+    .ws-play-half,
+    .ws-replay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* HTML boxes, not SVG paths: clip-path polygons only interpolate reliably on HTML elements. */
+    .ws-play-half {
+      background: currentColor;
+      transition: clip-path var(--ws-morph-duration) var(--ws-ease-morph);
+    }
+
+    .ws-play-left { clip-path: polygon(23% 20%, 28% 15%, 39% 15%, 44% 20%, 44% 80%, 39% 85%, 28% 85%, 23% 80%); }
+    .ws-play-right { clip-path: polygon(56% 20%, 61% 15%, 72% 15%, 77% 20%, 77% 80%, 72% 85%, 61% 85%, 56% 80%); }
+    media-play-button[data-paused] .ws-play-left { clip-path: polygon(30% 21%, 32% 17%, 36% 17%, 57% 32%, 57% 68%, 36% 83%, 32% 83%, 30% 79%); }
+    media-play-button[data-paused] .ws-play-right { clip-path: polygon(56% 32%, 56% 32%, 78% 46%, 81% 49%, 81% 51%, 78% 54%, 56% 68%, 56% 68%); }
+    .ws-replay { opacity: 0; transform: rotate(-180deg) scale(.9); transition: opacity var(--ws-dur-out) var(--ws-ease-out), transform var(--ws-morph-duration) var(--ws-ease-spring); }
+    media-play-button[data-ended] .ws-play-shape { opacity: 0; }
+    media-play-button[data-ended] .ws-replay { opacity: 1; transform: rotate(0); }
+
+    /* The slash (and its band-coloured cut-out) draws from the top-left once the waves have pulled back. */
+    .ws-mute-slash {
+      opacity: 0;
+      transition: opacity var(--ws-dur-out) linear;
+    }
+
+    media-mute-button:is([data-muted], [data-volume-level="off"]) .ws-mute-slash {
+      opacity: 1;
+      transition: opacity 0s linear 60ms;
+    }
+
+    .ws-mute-slash path {
+      stroke-dasharray: 1 2;
+      stroke-dashoffset: 1;
+      transition: stroke-dashoffset var(--ws-dur-out) var(--ws-ease-out);
+    }
+
+    media-mute-button:is([data-muted], [data-volume-level="off"]) .ws-mute-slash path {
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset var(--ws-icon-duration) var(--ws-ease-out) 60ms;
+    }
+
+    /* Waves slide out of the speaker one at a time (40 ms apart) and pull back into it in reverse. */
+    .ws-icon .ws-wave {
+      --ws-wave-in: 0ms;
+      --ws-wave-out: 0ms;
+      opacity: 0;
+      transform: translateX(-3px) scale(.9);
+      transform-origin: 10px 10px;
+      transition:
+        transform var(--ws-dur-out) var(--ws-ease-out) var(--ws-wave-out),
+        opacity var(--ws-dur-out) var(--ws-ease-out) var(--ws-wave-out);
+    }
+
+    .ws-icon .ws-wave-2 { --ws-wave-in: 40ms; --ws-wave-out: 20ms; }
+    .ws-icon .ws-wave-3 { --ws-wave-in: 80ms; }
+    .ws-icon .ws-wave-1 { --ws-wave-out: 40ms; }
+
+    media-mute-button:not([data-muted]):is([data-volume-level="low"], [data-volume-level="medium"], [data-volume-level="high"]) .ws-wave-1,
+    media-mute-button:not([data-muted]):is([data-volume-level="medium"], [data-volume-level="high"]) .ws-wave-2,
+    media-mute-button:not([data-muted])[data-volume-level="high"] .ws-wave-3 {
+      transform: none;
+      opacity: 1;
+      transition:
+        transform var(--ws-icon-duration) var(--ws-ease-spring) var(--ws-wave-in),
+        opacity var(--ws-dur-micro) var(--ws-ease-out) var(--ws-wave-in);
+    }
+
+    .ws-pip-window {
+      transition: transform var(--ws-icon-duration) var(--ws-ease-morph);
+    }
+
+    media-pip-button[data-pip] .ws-pip-window { transform: translate(5px, 3px); }
+
+    .ws-corner { transition: transform var(--ws-morph-duration) var(--ws-button-spring); }
+    .ws-corner-tl { transform: translate(calc(-1 * var(--ws-corner-offset, 0px)), calc(-1 * var(--ws-corner-offset, 0px))); }
+    .ws-corner-tr { transform: translate(var(--ws-corner-offset, 0px), calc(-1 * var(--ws-corner-offset, 0px))); }
+    .ws-corner-br { transform: translate(var(--ws-corner-offset, 0px), var(--ws-corner-offset, 0px)); }
+    .ws-corner-bl { transform: translate(calc(-1 * var(--ws-corner-offset, 0px)), var(--ws-corner-offset, 0px)); }
+    .ws-fullscreen-enter,
+    .ws-fullscreen-exit {
+      transition: opacity var(--ws-icon-duration) var(--ws-ease-out);
+    }
+
+    /* Entering pushes every corner outward (old set leaves outward, new set settles outward); exiting pulls them in. */
+    .ws-fullscreen-exit {
+      --ws-corner-offset: -3px;
+      opacity: 0;
+    }
+
+    media-fullscreen-button[data-fullscreen] .ws-fullscreen-enter {
+      --ws-corner-offset: 3px;
+      opacity: 0;
+    }
+
+    media-fullscreen-button[data-fullscreen] .ws-fullscreen-exit {
+      --ws-corner-offset: 0px;
+      opacity: 1;
+    }
+
+    .ws-icon-fullscreen > .ws-tone-2 {
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    .media-seek-button-content { display: grid; place-items: center; }
+    .ws-gear { transition: transform var(--ws-morph-duration) var(--ws-ease-spring); }
+    button[aria-expanded="true"] .ws-gear { transform: rotate(120deg); }
+    .ws-gear .ws-tone-2 { transform-box: fill-box; transform-origin: center; }
+
+    :is(
+      media-captions-button[data-active],
+      media-pip-button[data-pip],
+      .ws-overview-trigger[aria-pressed="true"],
+      .media-button[aria-expanded="true"],
+      media-cast-button[data-cast-state="connected"],
+      media-airplay-button[data-airplay-state="connected"]
+    ) {
+      background-color: var(--media-background);
+      color: var(--ws-accent-ink);
+    }
+
+    /* The accent disc springs in from 0.6 and shrinks away faster. */
+    :is(
+      media-captions-button[data-active],
+      media-pip-button[data-pip],
+      .ws-overview-trigger[aria-pressed="true"],
+      .media-button[aria-expanded="true"],
+      media-cast-button[data-cast-state="connected"],
+      media-airplay-button[data-airplay-state="connected"]
+    )::after {
+      opacity: 1;
+      transform: none;
+      transition:
+        opacity var(--ws-dur-micro) var(--ws-ease-out),
+        transform var(--ws-dur-in) var(--ws-ease-spring),
+        filter var(--ws-dur-micro) var(--ws-ease-out);
+    }
+
+    /* Hovering an active button swells and brightens its accent disc, since the hover disc sits behind it. */
+    @media (hover: hover) and (pointer: fine) {
+      :is(
+        media-captions-button[data-active],
+        media-pip-button[data-pip],
+        .ws-overview-trigger[aria-pressed="true"],
+        .media-button[aria-expanded="true"],
+        media-cast-button[data-cast-state="connected"],
+        media-airplay-button[data-airplay-state="connected"]
+      ):hover::after {
+        transform: scale(1.06);
+        filter: brightness(1.1);
+      }
+    }
+
+    /* Connected cast and AirPlay buttons already carry the accent disc, so their icons stay accent ink. */
+    .media-status-indicator-captions-on-icon {
+      color: var(--ws-accent);
+    }
+
+    /*
+     * One-shot accents on top of the transitions above. Each restarts on its own state flip and ends at rest.
+     * `ws-motion` sets data-ws-interacted on the first pointer or key press (finishing whatever that unlocks at once),
+     * so none of them plays on load or first render.
+     */
+    @media (prefers-reduced-motion: no-preference) {
+      :scope[data-ws-interacted] media-play-button[data-started][data-paused] .ws-play-shape { animation: ws-play-pop-in var(--ws-morph-duration) var(--ws-ease-spring); }
+      :scope[data-ws-interacted] media-play-button[data-started]:not([data-paused]) .ws-play-shape { animation: ws-play-pop-out var(--ws-morph-duration) var(--ws-ease-spring); }
+      /* Only the orbit ring and its satellite turn; the sphere is round, so turning the whole glyph reads the same. */
+      :scope[data-ws-interacted] .ws-overview-trigger[aria-pressed="true"] .ws-globe-orbit { animation: ws-icon-orbit 900ms var(--ws-ease-morph); }
+      :scope[data-ws-interacted] media-captions-button[data-active] .ws-captions-c {
+        animation: ws-draw-in var(--ws-icon-duration) var(--ws-ease-morph) both;
+      }
+      :scope[data-ws-interacted] media-captions-button[data-active] .ws-captions-c + .ws-captions-c { animation-delay: 60ms; }
+      :scope[data-ws-interacted] button[aria-expanded="true"] .ws-gear .ws-tone-2 { animation: ws-hub-pulse var(--ws-morph-duration) var(--ws-ease-morph); }
+      :scope[data-ws-interacted] media-fullscreen-button[data-fullscreen] .ws-icon-fullscreen > .ws-tone-2 { animation: ws-frame-grow var(--ws-morph-duration) var(--ws-ease-morph); }
+      :scope[data-ws-interacted] media-fullscreen-button:not([data-fullscreen]) .ws-icon-fullscreen > .ws-tone-2 { animation: ws-frame-shrink var(--ws-morph-duration) var(--ws-ease-morph); }
+      :scope[data-ws-interacted] .ws-flight-trigger[aria-expanded="true"] .ws-flight-route { animation: ws-route-draw 360ms var(--ws-ease-morph) both; }
+      :scope[data-ws-interacted] .ws-flight-trigger[aria-expanded="true"] .ws-flight-pin { animation: ws-pin-drop 360ms var(--ws-ease-spring) 120ms both; }
+    }
+
+    .ws-captions-c { stroke-dasharray: 1 2; }
+    .ws-flight-route { stroke-dasharray: 1 2; }
+    .ws-flight-pin { transform-box: fill-box; transform-origin: center bottom; }
+
+    /*
+     * Settings-row icons. One-shots (speech lines, speed needle, CC, Aurora ribbons, Overflight) are played by
+     * `playRowIcon` in motion.ts; Quality's knobs and the picture-in-picture window take a second pose while the row
+     * stays highlighted. Both wait for data-ws-browsing, so nothing moves on load or when the menu merely opens.
+     */
+    .media-menu-trigger-icon :is(.ws-speech-line, .ws-curtains > path) { transform-box: fill-box; transform-origin: left center; }
+    .media-menu-trigger-icon .ws-curtains > path { transform-origin: center bottom; }
+    .media-menu-trigger-icon .ws-speed-needle { transform-box: view-box; transform-origin: 10px 12px; }
+    .media-menu-trigger-icon .ws-knob { transition: transform var(--ws-icon-duration) var(--ws-ease-spring); }
+    @media (prefers-reduced-motion: no-preference) {
+      .media-menu-popup[data-ws-browsing] [data-highlighted] .media-menu-trigger-icon .ws-knob-start { transform: translateX(8.2px); }
+      .media-menu-popup[data-ws-browsing] [data-highlighted] .media-menu-trigger-icon .ws-knob-end { transform: translateX(-8.2px); }
+      .media-menu-popup[data-ws-browsing] [data-highlighted] .media-menu-trigger-icon .ws-pip-window { transform: translate(5px, 3px); }
+    }
+
+
+    .ws-aurora-setting[aria-checked="true"] .ws-curtains { animation: ws-icon-curtains 3.6s ease-in-out infinite alternate; }
+    .ws-buffer-ring { opacity: .55; }
+    .ws-buffer-dot { animation: ws-icon-orbit 1.6s linear infinite; }
+
+    .ws-chapter-button:active,
+    [data-item]:active,
+    .media-time-toggle:active { transform: scale(.9); }
+
+    /* --ws-row-delay staggers a menu row's entrance; it only applies to the opacity and translate it animates. */
+    .ws-chapter-button,
+    [data-item],
+    .media-menu-item,
+    .media-menu-radio-item,
+    .media-menu-back-item,
+    .media-time-toggle {
+      --ws-row-delay: 0ms;
+      transition:
+        background-color var(--ws-dur-micro),
+        transform var(--ws-dur-in) var(--ws-ease-spring),
+        opacity var(--ws-dur) var(--ws-ease-out) var(--ws-row-delay),
+        translate var(--ws-dur-in) var(--ws-ease-spring) var(--ws-row-delay);
+    }
+
+    @media (hover: hover) {
+      .media-time-toggle:hover,
+      [data-item]:hover { background-color: var(--media-button-highlight); }
+      .video-controls-center-button:hover { background-color: color-mix(in srgb, var(--ws-ink) 10%, var(--ws-band)) !important; }
+    }
+
+    /* ---------- Time ---------- */
+    .media-time-group {
+      font-variant-numeric: tabular-nums;
+      font-family: var(--ws-font-numeric);
+      font-size: var(--ws-text-md);
+      line-height: var(--ws-line-md);
+      font-weight: 550;
+      letter-spacing: 0.01em;
+      padding-inline: var(--ws-space-8);
+    }
+
+    .media-time-duration-value,
+    .media-time-separator {
+      color: var(--ws-ink-muted);
+    }
+
+    .media-time-toggle {
+      border-radius: var(--ws-r-pill);
+    }
+
+    /* ---------- Seek track ---------- */
+    .media-time-slider {
+      height: var(--ws-strip-height);
+      min-width: 0;
+    }
+
+    /*
+     * One mask per segment cuts the same full-width rest, buffer and elapsed layers.
+     * `fitChapterGaps()` supplies pixel-snapped insets; the percentages are the pre-script fallback.
+     */
+    .media-time-slider-chapter { clip-path: none; }
+    .media-time-slider-chapter:first-of-type { --ws-chapter-left: var(--ws-r-pill); }
+    .media-time-slider-chapter:last-of-type { --ws-chapter-right: var(--ws-r-pill); }
+    .media-time-slider-track {
+      height: 8px;
+      transition: height var(--ws-dur-in) var(--ws-ease-spring);
+      clip-path: inset(
+        0
+        var(--ws-chapter-clip-end, calc(100% - var(--media-slider-chapter-end)))
+        0
+        var(--ws-chapter-clip-start, var(--media-slider-chapter-start))
+        round var(--ws-chapter-left, 0px) var(--ws-chapter-right, 0px) var(--ws-chapter-right, 0px) var(--ws-chapter-left, 0px)
+      );
+    }
+
+    .media-time-slider-track::before {
+      inset: 0;
+      /* Day/night markers live in the rest layer so the elapsed fill covers them. */
+      background: var(--ws-terminators, none),
+        var(--ws-passes-edge, none) left top / 100% 1px no-repeat,
+        var(--ws-passes, var(--ws-strip-rest));
+    }
+
+    /* Hover highlight only. */
+    .media-time-slider-track::after {
+      z-index: 1;
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      transition: background-color var(--ws-strip-duration) var(--ws-ease-out);
+    }
+
+    .media-time-slider:is(:focus-visible, :has(:focus-visible)) .media-time-slider-track,
+    .media-time-slider[data-dragging] .media-time-slider-track {
+      height: 12px;
+    }
+
+    @media (hover: hover) {
+      .media-time-slider:hover .media-time-slider-track {
+        height: 12px;
+      }
+
+      .media-time-slider[data-pointing] .media-time-slider-chapter[data-highlighted] .media-time-slider-track::after {
+        background-color: rgb(255 255 255 / 0.16);
+      }
+    }
+
+    .media-time-slider-buffer,
+    .media-time-slider-fill,
+    .media-time-slider[data-dragging] .media-time-slider-fill {
+      left: 0;
+      border-radius: 0;
+      clip-path: none;
+    }
+
+    .media-time-slider-buffer {
+      background-color: color-mix(in oklab, var(--ws-ink) 22%, transparent);
+      right: calc(100% - var(--media-slider-buffer, 0%));
+    }
+
+    .media-time-slider-fill {
+      background-color: var(--ws-accent);
+      box-shadow: 0 0 10px color-mix(in oklab, var(--ws-accent) 55%, transparent);
+      transition: background-color var(--ws-palette-duration);
+      right: calc(100% - var(--media-slider-fill, 0%));
+    }
+
+    .media-time-slider[data-dragging] .media-time-slider-fill {
+      right: calc(100% - var(--media-slider-pointer, 0%));
+    }
+
+    .media-time-slider-thumb.ws-iss-thumb {
+      left: var(--media-slider-fill, 0%);
+      width: calc(var(--ws-unit) * 8.5);
+      height: var(--ws-icon);
+      border: 0;
+      border-radius: var(--ws-r-pill);
+      background: none;
+      box-shadow: none;
+      display: grid;
+      place-items: center;
+    }
+
+    .media-time-slider[data-dragging] .ws-iss-thumb {
+      left: var(--media-slider-pointer, 0%);
+    }
+
+    /*
+     * Scroll areas (Overflight list, menus): in browsers with the WebKit scrollbar pseudo-elements, the muted pill thumb
+     * turns the accent while hovered or dragged. `scrollbar-color: auto` hands those browsers back to the pseudo-elements;
+     * others keep the theme's thin `scrollbar-color`.
+     */
+    @supports selector(::-webkit-scrollbar) {
+      * { scrollbar-color: auto; scrollbar-width: auto; }
+      *::-webkit-scrollbar { width: 10px; height: 10px; }
+      *::-webkit-scrollbar-track, *::-webkit-scrollbar-corner { background: transparent; }
+      *::-webkit-scrollbar-thumb { border: 3px solid transparent; border-radius: 9999px; background: var(--media-scrollbar-thumb-color) padding-box; }
+      *::-webkit-scrollbar-thumb:hover, *::-webkit-scrollbar-thumb:active { background-color: var(--ws-accent); }
+
+      @media (forced-colors: active) {
+        *::-webkit-scrollbar-thumb { background: CanvasText padding-box; }
+        *::-webkit-scrollbar-thumb:hover, *::-webkit-scrollbar-thumb:active { background: Highlight padding-box; }
+      }
+    }
+
+    /*
+     * Progress marker: `marker="station|plane|ship|car|helicopter|train|dot|custom"` on the skin root (media-container) or any ancestor.
+     * The station is the default. `custom` draws `--media-marker-image` (an SVG url, facing right) in the ink colour.
+     */
+    .ws-iss-thumb > .ws-iss { display: none; }
+    .ws-iss-thumb > [data-marker="station"],
+    .ws-iss-thumb:is([marker="plane"] *) > [data-marker="plane"],
+    .ws-iss-thumb:is([marker="ship"] *) > [data-marker="ship"],
+    .ws-iss-thumb:is([marker="car"] *) > [data-marker="car"],
+    .ws-iss-thumb:is([marker="helicopter"] *) > [data-marker="helicopter"],
+    .ws-iss-thumb:is([marker="train"] *) > [data-marker="train"],
+    .ws-iss-thumb:is([marker="dot"] *) > [data-marker="dot"],
+    .ws-iss-thumb:is([marker="custom"] *) > [data-marker="custom"] { display: block; }
+    .ws-iss-thumb:is([marker="plane"] *, [marker="ship"] *, [marker="car"] *, [marker="helicopter"] *, [marker="train"] *, [marker="dot"] *, [marker="custom"] *) > [data-marker="station"] { display: none; }
+
+    .ws-marker-custom {
+      background: var(--ws-ink);
+      mask: var(--media-marker-image, none) center / contain no-repeat;
+    }
+
+    .ws-iss {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      filter: drop-shadow(0 2px 3px rgb(0 0 0 / 0.3));
+      transition: transform var(--ws-dur-in) var(--ws-ease-spring);
+    }
+
+    .media-time-slider[data-dragging] .ws-iss,
+    .ws-iss-thumb:focus-visible .ws-iss {
+      transform: scale(1.15);
+    }
+
+    /* While dragging, the station banks toward the direction of travel (`ws-motion` reports it) and levels out on release. */
+    .media-time-slider[data-dragging][data-ws-drag="forward"] .ws-iss { transform: scale(1.15) rotate(7deg); }
+    .media-time-slider[data-dragging][data-ws-drag="back"] .ws-iss { transform: scale(1.15) rotate(-7deg); }
+
+    @media (hover: hover) {
+      .media-time-slider:hover .ws-iss {
+        transform: scale(1.15);
+      }
+    }
+
+    .ws-iss-knockout {
+      fill: var(--ws-band);
+      stroke: var(--ws-band);
+      stroke-width: 3.5px;
+      stroke-linejoin: round;
+    }
+
+    .ws-iss-body {
+      fill: var(--ws-ink);
+    }
+
+    .ws-iss-arrays {
+      fill: var(--ws-accent);
+    }
+
+    .media-time-slider-thumb:focus-visible {
+      outline: 2px solid var(--ws-ring);
+      outline-offset: 2px;
+    }
+
+    .media-time-slider-preview {
+      transform-origin: bottom center;
+      transform: scale(0.94);
+      transition: opacity var(--ws-strip-duration) var(--ws-ease-out), transform var(--ws-strip-duration) var(--ws-ease-out);
+    }
+
+    .media-time-slider:is([data-pointing], [data-dragging]) .media-time-slider-preview {
+      transform: scale(1);
+    }
+
+    /* Scrub preview: a round porthole sits above the rail. */
+    .media-slider-thumbnail {
+      --ws-porthole: calc(var(--media-spacing) * 34);
+      width: var(--ws-porthole);
+      height: var(--ws-porthole);
+      min-width: var(--ws-porthole);
+      min-height: var(--ws-porthole);
+      max-width: var(--ws-porthole);
+      max-height: var(--ws-porthole);
+      border-radius: 50%;
+      border: 3px solid var(--ws-band);
+      box-shadow: var(--ws-glass-shadow);
+      background-color: var(--ws-surface);
+      -webkit-backdrop-filter: var(--ws-glass-filter);
+      backdrop-filter: var(--ws-glass-filter);
+    }
+
+    @container media-root (width < 30rem) {
+      .media-slider-thumbnail {
+        --ws-porthole: calc(var(--media-spacing) * 20);
+      }
+    }
+
+    .media-time-slider-preview-label {
+      background-color: var(--ws-band);
+      color: var(--ws-ink);
+      border-radius: var(--ws-r-pill);
+      padding-inline: calc(var(--media-spacing) * 2);
+      padding-block: calc(var(--media-spacing) * 0.5);
+      font-variant-numeric: tabular-nums;
+      box-shadow: var(--ws-glass-shadow);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .media-time-slider-preview-label {
+        opacity: 0;
+        transform: translateY(6px);
+        transition: opacity var(--ws-strip-duration) var(--ws-ease-out), transform var(--ws-strip-duration) var(--ws-ease-out);
+      }
+
+      .media-time-slider:is([data-pointing], [data-dragging]) .media-time-slider-preview-label {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ---------- Callout ---------- */
+    .video-controls-top {
+      top: var(--ws-picture-top, 0px);
+      justify-content: flex-start;
+      padding: var(--ws-rail-inset);
+      pointer-events: none;
+    }
+
+    .ws-callout {
+      min-width: 0;
+      flex: 0 1 auto;
+      max-width: 100%;
+    }
+
+    .ws-callout-label {
+      display: flex;
+      align-items: baseline;
+      gap: var(--ws-gap);
+      white-space: nowrap;
+      background-color: var(--ws-surface);
+      -webkit-backdrop-filter: var(--ws-glass-filter);
+      backdrop-filter: var(--ws-glass-filter);
+      color: var(--ws-ink);
+      border-radius: var(--ws-r-pill);
+      padding-inline: var(--ws-space-12);
+      padding-block: var(--ws-space-4);
+      font-size: var(--ws-text-lg);
+      line-height: var(--ws-line-lg);
+      font-weight: 600;
+      box-shadow: var(--ws-glass-shadow);
+      transition:
+        opacity var(--media-duration-controls),
+        background-color var(--ws-palette-duration),
+        color var(--ws-palette-duration);
+    }
+
+    .ws-callout-place {
+      min-inline-size: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ws-callout-dot {
+      align-self: center;
+      flex: 0 0 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--ws-accent);
+      transition: background-color var(--ws-palette-duration);
+      forced-color-adjust: none;
+    }
+
+    :is(.ws-callout-name, .ws-callout-over) {
+      position: relative;
+    }
+
+    .ws-place-current,
+    .ws-place-previous {
+      display: inline-block;
+      transition: opacity 240ms var(--ws-ease-out), transform 240ms var(--ws-ease-out);
+    }
+
+    .ws-place-previous {
+      position: absolute;
+      inset-inline-start: 0;
+      top: 0;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+
+    .ws-place-preparing > :is(.ws-place-current, .ws-place-previous) { transition: none; }
+    .ws-place-preparing > .ws-place-current { opacity: 0; transform: translateY(6px); }
+    .ws-place-preparing > .ws-place-previous { opacity: 1; transform: none; }
+
+    .ws-callout-coordinates {
+      flex: none;
+      font-family: var(--ws-font-numeric);
+      font-size: var(--ws-text-md);
+      line-height: var(--ws-line-md);
+      font-variant-numeric: tabular-nums;
+      color: var(--ws-ink-muted);
+    }
+
+    @container media-root (width >= 30rem) {
+      .ws-callout-over:not([hidden]) + .ws-callout-name {
+        display: none;
+      }
+    }
+
+    @container media-root (width < 30rem) {
+      .ws-callout-label {
+        font-size: var(--ws-text-lg);
+        padding-block: var(--media-spacing);
+        padding-inline: var(--ws-space-8);
+      }
+
+      .video-controls-top {
+        padding: calc(var(--media-spacing) * 2);
+      }
+
+      .ws-callout-over,
+      .ws-callout-coordinates {
+        display: none;
+      }
+    }
+
+    .ws-chapter-controls {
+      display: flex;
+      flex: none;
+      gap: calc(var(--media-spacing) * 0.5);
+    }
+
+    .ws-chapter-controls:not(:has(button:not([hidden]))),
+    .ws-chapter-controls button[hidden] {
+      display: none;
+    }
+
+    .ws-sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      clip-path: inset(50%);
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    /* ---------- Popups: tooltips, menus, volume ---------- */
+    .media-tooltip-popup,
+    .media-menu-popup,
+    .ws-places-popup,
+    .media-volume-popover-popup,
+    .media-dialog-popup {
+      background-color: var(--ws-surface-popup);
+      -webkit-backdrop-filter: var(--ws-glass-filter);
+      backdrop-filter: var(--ws-glass-filter);
+      color: var(--ws-ink);
+      border-radius: var(--media-popup-radius);
+      box-shadow: var(--ws-glass-shadow);
+    }
+
+    .media-tooltip-popup {
+      border-radius: var(--ws-r-pill);
+      padding-inline: calc(var(--media-spacing) * 2);
+      padding-block: calc(var(--media-spacing) * 1);
+      font-size: var(--ws-text-sm);
+      line-height: var(--ws-line-sm);
+      font-weight: 550;
+    }
+
+    /* Popups anchor to a button inside an island: add the island's inner margin so every popup clears the row by one gap. */
+    .media-tooltip-popup,
+    .media-menu-popup,
+    .media-volume-popover-popup {
+      --ws-popup-offset: calc((var(--ws-island-height) - var(--ws-control)) / 2 + var(--ws-popup-gap));
+      --media-tooltip-side-offset: var(--ws-popup-offset);
+      --media-popover-side-offset: var(--ws-popup-offset);
+      --media-popup-side-offset: var(--ws-popup-offset);
+    }
+
+    /* Keyboard chip, shared by tooltips and menu rows. */
+    .media-tooltip-shortcut:not(:empty) {
+      display: inline-grid;
+      place-items: center;
+      box-sizing: border-box;
+      flex: none;
+      min-inline-size: calc(var(--ws-unit) * 4.5);
+      block-size: calc(var(--ws-unit) * 4.5);
+      margin-inline-start: var(--ws-space-4);
+      padding: 0 var(--ws-space-4);
+      border-radius: var(--ws-r-pill);
+      border: 1px solid var(--ws-hairline);
+      background-color: color-mix(in oklab, var(--ws-ink) 10%, transparent);
+      color: var(--ws-ink-muted);
+      font-weight: 600;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .media-menu-popup,
+    .ws-places-popup {
+      border-radius: var(--media-popup-radius);
+    }
+
+    /* ---------- Volume popover: a small vertical island ---------- */
+    .media-volume-popover-popup {
+      box-sizing: border-box;
+      inline-size: var(--ws-island-height);
+      block-size: calc(var(--ws-unit) * 30);
+      padding: var(--ws-space-12) 0;
+      border-radius: var(--ws-r-pill);
+      background: var(--ws-rail-wash), var(--ws-surface);
+    }
+
+    .media-volume-slider-track {
+      inline-size: calc(var(--ws-unit) * 1.5);
+      border-radius: var(--ws-r-pill);
+      background-color: var(--ws-strip-rest);
+    }
+
+    .media-volume-slider-fill {
+      background-color: var(--ws-accent);
+      transition: background-color var(--ws-palette-duration);
+    }
+
+    .media-volume-slider-thumb {
+      box-sizing: border-box;
+      inline-size: calc(var(--ws-unit) * 3.5);
+      block-size: calc(var(--ws-unit) * 3.5);
+      border: 0;
+      border-radius: 50%;
+      background-color: var(--ws-ink);
+      box-shadow: var(--media-shadow-thumb);
+      transition: scale var(--ws-strip-duration) var(--ws-ease-out);
+    }
+
+    .media-volume-slider[data-dragging] .media-volume-slider-thumb {
+      scale: 1.15;
+    }
+
+    .media-volume-slider-thumb:focus-visible,
+    .media-volume-slider:focus-visible .media-volume-slider-thumb {
+      outline: 2px solid var(--ws-ring);
+      outline-offset: 2px;
+    }
+
+    .ws-places-popup {
+      --ws-places-limit: var(--ws-places-height, 50vh);
+      --media-popover-side-offset: var(--ws-places-offset, 8px);
+      inline-size: min(18rem, var(--media-popover-available-width, calc(100vw - 1rem)));
+      box-sizing: border-box;
+      max-block-size: var(--ws-places-limit);
+      overflow: hidden;
+      padding: calc(var(--media-spacing) * 2);
+    }
+
+    ws-places {
+      display: flex;
+      flex-direction: column;
+      min-block-size: 0;
+      max-block-size: calc(var(--ws-places-limit) - var(--media-spacing) * 4);
+    }
+
+    ws-places .ws-panel-heading { flex: none; }
+    ws-places .ws-chapter-list {
+      min-block-size: 0;
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+
+    .ws-places-popup:not([data-open]):not([data-ending-style]) {
+      display: none;
+    }
+
+    .ws-panel-heading {
+      display: block;
+      text-align: start;
+    }
+
+    ws-places .ws-panel-heading {
+      padding: var(--media-spacing) calc(var(--media-spacing) * 2);
+      color: var(--ws-ink-muted);
+      font-size: var(--ws-text-lg);
+      line-height: var(--ws-line-lg);
+    }
+
+    .ws-chapter-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    /*
+     * Route timeline: a line down the start edge with one node per place.
+     * Passed places are filled accent nodes on an accent line; the current place gets a ringed node and a tinted pill;
+     * upcoming places are hollow muted nodes.
+     */
+    .ws-chapter-list {
+      --ws-route-x: var(--ws-space-16);
+      --ws-route-line: calc(var(--ws-unit) / 2);
+      --ws-route-node: calc(var(--ws-unit) * 2.5);
+      --ws-route-current: calc(var(--ws-unit) * 3.5);
+      --ws-route-muted: color-mix(in oklab, var(--ws-ink-muted) 45%, transparent);
+    }
+
+    .ws-chapter-button {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: var(--ws-space-8);
+      box-sizing: border-box;
+      inline-size: 100%;
+      min-block-size: var(--ws-control);
+      padding-block: var(--ws-space-4);
+      padding-inline: calc(var(--ws-route-x) * 2) var(--ws-space-12);
+      border: 0;
+      border-radius: var(--ws-r-pill);
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      font-size: var(--ws-text-md);
+      line-height: var(--ws-line-md);
+      text-align: start;
+      overflow-wrap: anywhere;
+      cursor: pointer;
+    }
+
+    .ws-chapter-button::before,
+    .ws-chapter-button::after {
+      content: "";
+      position: absolute;
+      pointer-events: none;
+      forced-color-adjust: none;
+    }
+
+    /* Line segment through this row; the first and last rows stop at their node. */
+    .ws-chapter-button::before {
+      inset-block: 0;
+      inset-inline-start: calc(var(--ws-route-x) - var(--ws-route-line) / 2);
+      inline-size: var(--ws-route-line);
+      /* --ws-route-fill is how far down this row the accent line reaches; it grows when the place changes. */
+      --ws-route-fill: 0%;
+      background: linear-gradient(var(--ws-route-done, var(--ws-accent)) var(--ws-route-fill), var(--ws-route-todo, var(--ws-route-muted)) 0);
+      transition: --ws-route-fill var(--ws-morph-duration) var(--ws-ease-morph);
+    }
+
+    .ws-chapter-list > li:first-child .ws-chapter-button::before { inset-block-start: 50%; }
+    .ws-chapter-list > li:last-child .ws-chapter-button::before { inset-block-end: 50%; }
+    .ws-chapter-button[data-passed]::before { --ws-route-fill: 100%; }
+    .ws-chapter-button[aria-current="true"]::before { --ws-route-fill: 50%; }
+    .ws-chapter-list > li:first-child .ws-chapter-button[aria-current="true"]::before { --ws-route-fill: 0%; }
+    .ws-chapter-list > li:last-child .ws-chapter-button[aria-current="true"]::before { --ws-route-fill: 100%; }
+
+    .ws-chapter-button::after {
+      --ws-node: var(--ws-route-node);
+      box-sizing: border-box;
+      inset-block-start: calc(50% - var(--ws-node) / 2);
+      inset-inline-start: calc(var(--ws-route-x) - var(--ws-node) / 2);
+      inline-size: var(--ws-node);
+      block-size: var(--ws-node);
+      border: var(--ws-route-line) solid var(--ws-ink-muted);
+      border-radius: 50%;
+      background: var(--ws-popover);
+    }
+
+    .ws-chapter-button[data-passed]::after {
+      border-color: var(--ws-accent);
+      background: var(--ws-accent);
+    }
+
+    .ws-chapter-button[aria-current="true"]::after {
+      --ws-node: var(--ws-route-current);
+      border-color: var(--ws-popover);
+      background: var(--ws-accent);
+      box-shadow: 0 0 0 var(--ws-route-line) var(--ws-accent);
+    }
+
+    /* The ringed node springs in on the place that becomes current; the row tint cross-fades with it. */
+    @media (prefers-reduced-motion: no-preference) {
+      .ws-chapter-button[aria-current="true"]::after {
+        animation: ws-node-ring var(--ws-morph-duration) var(--ws-ease-spring);
+      }
+    }
+
+    .ws-chapter-button[aria-current="true"] {
+      background-color: color-mix(in oklab, var(--ws-accent) 16%, transparent);
+      font-weight: 650;
+      transition-duration: var(--ws-morph-duration), var(--ws-dur-in), var(--ws-dur), var(--ws-dur-in);
+    }
+
+    .ws-chapter-button[aria-current="true"] .ws-chapter-time {
+      color: var(--ws-accent);
+    }
+
+    @media (hover: hover) {
+      .ws-chapter-button:hover {
+        background-color: color-mix(in oklab, var(--ws-ink) 10%, transparent);
+      }
+
+      .ws-chapter-button[aria-current="true"]:hover {
+        background-color: color-mix(in oklab, var(--ws-accent) 24%, transparent);
+      }
+    }
+
+    .ws-chapter-button:focus-visible {
+      background-color: color-mix(in oklab, var(--ws-ink) 10%, transparent);
+    }
+
+    .ws-chapter-time {
+      justify-self: end;
+      color: var(--ws-ink-muted);
+      font-variant-numeric: tabular-nums;
+      font-family: var(--ws-font-numeric);
+      font-size: var(--ws-text-sm);
+      line-height: var(--ws-line-sm);
+      text-align: end;
+    }
+
+    .ws-chapter-button:focus-visible,
+    .ws-flight-notes a:focus-visible {
+      outline: 2px solid var(--ws-ring);
+      outline-offset: -2px;
+    }
+
+    /* Sits one popup gap above the islands; `ws-motion` measures the room and centres it in compact layouts. */
+    .media-dialog-popup.ws-flight-popup {
+      --ws-flight-gap: var(--ws-popup-gap);
+      --ws-popup-base-x: 0px;
+      --ws-popup-base-y: 0px;
+      --ws-origin-y: bottom;
+      box-sizing: border-box;
+      max-height: calc(var(--ws-flight-space, 100% - 24px) - var(--ws-flight-gap));
+      inline-size: min(26rem, calc(100% - 24px));
+      top: auto;
+      bottom: calc(var(--ws-flight-bottom, 12px) + var(--ws-flight-gap));
+      left: auto;
+      right: auto;
+      inset-inline-end: var(--ws-flight-end, 12px);
+      grid-template-columns: 1fr auto;
+      grid-template-rows: auto minmax(0, 1fr);
+      align-items: center;
+      overflow: hidden;
+      padding: calc(var(--media-spacing) * 3);
+    }
+
+    .media-dialog-popup.ws-flight-popup[data-ws-centered] {
+      --ws-flight-gap: 0px;
+      --ws-popup-base-x: -50%;
+      --ws-popup-base-y: -50%;
+      --ws-origin-y: center;
+      top: 50%;
+      bottom: auto;
+      left: 50%;
+      right: auto;
+    }
+
+    /* The scroll area fades at both ends; padding keeps the first and last rows clear of the fade at rest. */
+    .ws-flight-popup ws-flight-log {
+      --ws-fade: var(--ws-space-12);
+      grid-column: 1 / -1;
+      align-self: stretch;
+      min-block-size: 0;
+      overflow: auto;
+      overscroll-behavior: contain;
+      padding-block: var(--ws-fade);
+      margin-block: calc(var(--ws-fade) * -1);
+      -webkit-mask-image: linear-gradient(transparent, black var(--ws-fade), black calc(100% - var(--ws-fade)), transparent);
+      mask-image: linear-gradient(transparent, black var(--ws-fade), black calc(100% - var(--ws-fade)), transparent);
+    }
+
+    .media-dialog-close:not(:has(media-icon)) {
+      width: auto;
+      min-width: var(--ws-control);
+      height: var(--ws-control);
+      padding-inline: var(--ws-space-12);
+      font-size: var(--ws-text-md);
+      line-height: var(--ws-line-md);
+    }
+
+    .ws-flight-popup .media-dialog-close {
+      width: var(--ws-control);
+      height: var(--ws-control);
+      padding: 0;
+    }
+
+    /* An icon button like the rest: no outlined ring. */
+    .media-button.media-dialog-close:has(media-icon) {
+      border-color: transparent;
+      box-shadow: none;
+    }
+
+    .ws-flight-notes:not(:empty) {
+      margin-block-start: var(--media-spacing);
+      padding: calc(var(--media-spacing) * 2);
+      font-size: var(--ws-text-lg);
+      line-height: var(--ws-line-lg);
+      overflow-wrap: anywhere;
+    }
+
+    .ws-flight-notes p {
+      margin: 0 0 var(--media-spacing);
+    }
+
+    .ws-flight-notes a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 0.15em;
+    }
+
+    /* Every row: leading icon, label, then a trailing hint whose last cell is one icon wide (chevron or check). */
+    .media-menu-item,
+    .media-menu-radio-item,
+    .media-menu-back-item {
+      box-sizing: border-box;
+      min-block-size: var(--ws-control);
+      padding-inline: var(--ws-space-8);
+      gap: var(--ws-space-8);
+      border-radius: var(--media-menu-item-radius);
+    }
+
+    /* Touch: every popup row keeps a 44 px target even if --ws-control is ever lowered. */
+    @media (pointer: coarse) {
+      .media-menu-item,
+      .media-menu-radio-item,
+      .media-menu-back-item,
+      .ws-chapter-button {
+        min-block-size: max(44px, var(--ws-control));
+      }
+    }
+
+    .media-menu-trigger-icon,
+    .media-menu-forward-chevron,
+    .media-menu-back-chevron,
+    .media-menu-radio-icon {
+      opacity: 1;
+      flex: none;
+    }
+
+    .media-menu-trigger-icon {
+      color: var(--ws-ink);
+    }
+
+    .media-menu-hint {
+      gap: var(--ws-space-4);
+      padding-inline-start: var(--ws-space-8);
+      opacity: 1;
+      color: var(--ws-ink-muted);
+    }
+
+    .media-menu-hint-label {
+      color: var(--ws-ink-muted);
+      font-weight: 450;
+      /* Values such as "Auto (854p)" are Latin runs: truncate their end, not their start, in RTL. */
+      unicode-bidi: plaintext;
+    }
+
+    .media-menu-indicator {
+      display: grid;
+      place-items: center;
+      margin-inline-end: 0;
+      color: var(--ws-accent);
+    }
+
+    .ws-aurora-setting[aria-checked="true"] .media-menu-indicator {
+      opacity: 1;
+    }
+
+    .media-menu-item[data-highlighted],
+    .media-menu-radio-item[data-highlighted],
+    .media-menu-back-item[data-highlighted] {
+      background-color: var(--ws-accent);
+      color: var(--ws-accent-ink);
+    }
+
+    /* Everything on the accent row uses accent ink at full strength. */
+    :is(.media-menu-item, .media-menu-radio-item, .media-menu-back-item)[data-highlighted] :is(.media-menu-hint, .media-menu-hint-label, .media-menu-trigger-icon, .media-menu-forward-chevron, .media-menu-back-chevron, .media-menu-tier, .media-tooltip-shortcut) {
+      color: var(--ws-accent-ink);
+      opacity: 1;
+    }
+
+    :is(.media-menu-item, .media-menu-radio-item, .media-menu-back-item)[data-highlighted] .media-menu-indicator {
+      color: var(--ws-accent-ink);
+    }
+
+    :is(.media-menu-item, .media-menu-radio-item, .media-menu-back-item)[data-highlighted] .media-tooltip-shortcut {
+      border-color: color-mix(in oklab, var(--ws-accent-ink) 45%, transparent);
+      background-color: color-mix(in oklab, var(--ws-accent-ink) 12%, transparent);
+    }
+
+    .media-menu-separator {
+      background-color: var(--ws-hairline);
+    }
+
+    .media-menu-badge {
+      background-color: var(--ws-track);
+      color: var(--ws-band);
+    }
+
+    :is(.media-menu-radio-item, .media-menu-item)[data-highlighted] .media-menu-badge {
+      background-color: var(--ws-accent-ink);
+      color: var(--ws-accent);
+    }
+
+    /* ---------- Feedback: indicators, buffering, errors ---------- */
+    /* Hotkey feedback: one glass pill family (icon, optional level bar, tabular value). */
+    .media-indicator {
+      box-sizing: border-box;
+      flex-direction: row;
+      align-items: center;
+      gap: var(--ws-space-8) !important;
+      min-block-size: var(--ws-control);
+      padding: 0 var(--ws-space-12);
+      background: var(--ws-rail-wash), var(--ws-surface);
+      -webkit-backdrop-filter: var(--ws-glass-filter);
+      backdrop-filter: var(--ws-glass-filter);
+      color: var(--ws-ink);
+      border-radius: var(--ws-r-pill);
+      box-shadow: var(--ws-glass-shadow);
+      font-variant-numeric: tabular-nums;
+      font-family: var(--ws-font-numeric);
+      font-size: var(--ws-text-md);
+      line-height: var(--ws-line-md);
+      font-weight: 600;
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity var(--ws-dur-micro) var(--ws-ease-out), transform var(--ws-dur-in) var(--ws-ease-spring);
+    }
+
+    .media-indicator[data-starting-style] { opacity: 0; transform: scale(.9); }
+    .media-indicator[data-ending-style] { opacity: 0; transition: opacity var(--ws-dur-out) var(--ws-ease-out); }
+    .ws-status-play,
+    .ws-status-pause { display: none; }
+    [data-status="play"] .ws-status-play,
+    [data-status="pause"] .ws-status-pause { display: block; }
+
+    .media-volume-indicator-fill {
+      gap: var(--ws-space-8);
+      background: none;
+    }
+
+    .media-volume-indicator-value {
+      min-inline-size: 4ch;
+      text-align: end;
+    }
+
+    .ws-volume-level {
+      flex: none;
+      inline-size: calc(var(--ws-unit) * 12);
+      block-size: var(--ws-unit);
+      border-radius: var(--ws-r-pill);
+      /* A registered copy of the fill, so each step slides instead of jumping. */
+      --ws-volume-bar: var(--media-volume-fill, 0%);
+      background: linear-gradient(var(--ws-volume-dir, to right), var(--ws-accent) var(--ws-volume-bar), var(--ws-strip-rest) 0);
+      transition: --ws-volume-bar var(--ws-dur-in) var(--ws-ease-out);
+      forced-color-adjust: none;
+    }
+
+    .ws-volume-level:dir(rtl) { --ws-volume-dir: to left; }
+
+    .media-buffering-indicator-spinner-icon {
+      box-sizing: content-box;
+      width: var(--ws-icon);
+      height: var(--ws-icon);
+      padding: var(--ws-space-8);
+      border-radius: var(--ws-r-pill);
+      background-color: var(--ws-band);
+      color: var(--ws-ink);
+      box-shadow: var(--ws-glass-shadow);
+    }
+
+    .media-dialog-popup {
+      border-radius: var(--media-dialog-radius);
+    }
+
+    .media-dialog-backdrop {
+      background-color: rgb(0 0 0 / 0.55);
+      opacity: 1;
+      transition: opacity var(--ws-dur-fast) var(--ws-ease-out);
+    }
+
+    .media-dialog-backdrop:is([data-starting-style], [data-ending-style]) { opacity: 0; }
+
+    /* Native transition hooks keep interrupted opens/closes attached to their owning popup. */
+    /*
+     * Surfaces grow from their trigger: 0.92 → 1, a 6 px rise and a fade, on the spring; closing is a quicker
+     * fade and shrink on the ease-out. Both are transitions, so a close during an open reverses from where it is.
+     */
+    :is(.media-tooltip-popup, .media-menu-popup, .ws-places-popup, .media-volume-popover-popup, .media-dialog-popup) {
+      --ws-popup-x: 0px;
+      --ws-popup-y: 6px;
+      --ws-origin-x: center;
+      --ws-origin-y: bottom;
+      --ws-popup-base-x: 0px;
+      --ws-popup-base-y: 0px;
+      opacity: 1;
+      scale: none;
+      filter: none;
+      transform: translate(var(--ws-popup-base-x), var(--ws-popup-base-y));
+      transform-origin: var(--ws-origin-x) var(--ws-origin-y);
+      transition: opacity var(--ws-dur) var(--ws-ease-out), transform var(--ws-dur-in) var(--ws-ease-spring);
+    }
+
+    [data-side="bottom"] { --ws-popup-y: -6px; --ws-origin-y: top; }
+    [data-side="left"] { --ws-popup-x: 6px; --ws-popup-y: 0px; --ws-origin-x: right; --ws-origin-y: center; }
+    [data-side="right"] { --ws-popup-x: -6px; --ws-popup-y: 0px; --ws-origin-x: left; --ws-origin-y: center; }
+    [data-side="top"][data-align="start"],
+    [data-side="bottom"][data-align="start"] { --ws-origin-x: left; }
+    [data-side="top"][data-align="end"],
+    [data-side="bottom"][data-align="end"] { --ws-origin-x: right; }
+    [data-side="left"][data-align="start"],
+    [data-side="right"][data-align="start"] { --ws-origin-y: top; }
+    [data-side="left"][data-align="end"],
+    [data-side="right"][data-align="end"] { --ws-origin-y: bottom; }
+    :is([data-side="top"], [data-side="bottom"])[data-align="start"]:dir(rtl) { --ws-origin-x: right; }
+    :is([data-side="top"], [data-side="bottom"])[data-align="end"]:dir(rtl) { --ws-origin-x: left; }
+
+    .media-dialog-popup {
+      --ws-popup-base-x: -50%;
+      --ws-popup-base-y: -50%;
+      --ws-origin-x: center;
+      --ws-origin-y: center;
+    }
+
+    .media-dialog-popup[data-ending-style] { display: grid; }
+
+    :is(.media-tooltip-popup, .media-menu-popup, .ws-places-popup, .media-volume-popover-popup, .media-dialog-popup)[data-starting-style] {
+      opacity: 0;
+      transform: translate(calc(var(--ws-popup-base-x) + var(--ws-popup-x)), calc(var(--ws-popup-base-y) + var(--ws-popup-y))) scale(.92);
+      scale: none;
+      filter: none;
+    }
+
+    :is(.media-tooltip-popup, .media-menu-popup, .ws-places-popup, .media-volume-popover-popup, .media-dialog-popup)[data-ending-style] {
+      opacity: 0;
+      transform: translate(var(--ws-popup-base-x), var(--ws-popup-base-y)) scale(.96);
+      scale: none;
+      filter: none;
+      transition: opacity var(--ws-dur-out) var(--ws-ease-out), transform var(--ws-dur-out) var(--ws-ease-out);
+    }
+
+    /* Tooltips: a 100 ms fade and 4 px rise, no scale. */
+    .media-tooltip-popup {
+      --ws-popup-y: 4px;
+      transition-duration: 100ms;
+      transition-timing-function: var(--ws-ease-out);
+    }
+
+    .media-tooltip-popup[data-side="bottom"] { --ws-popup-y: -4px; }
+    .media-tooltip-popup[data-side="left"] { --ws-popup-x: 4px; --ws-popup-y: 0px; }
+    .media-tooltip-popup[data-side="right"] { --ws-popup-x: -4px; --ws-popup-y: 0px; }
+    .media-tooltip-popup[data-starting-style] {
+      transform: translate(var(--ws-popup-x), var(--ws-popup-y));
+    }
+
+    .media-tooltip-popup[data-ending-style] {
+      transform: none;
+      transition-duration: 100ms;
+    }
+
+    /* Moving between neighbours in one tooltip group: the outgoing tip vanishes and the next one is simply there. */
+    media-tooltip-group:has(.media-tooltip-popup[data-ending-style]) .media-tooltip-popup[data-open]:not([data-ending-style]),
+    media-tooltip-group:has(.media-tooltip-popup[data-open]:not([data-starting-style], [data-ending-style])) .media-tooltip-popup[data-ending-style] {
+      transition: none;
+    }
+
+    /*
+     * Rows of an opening menu rise 4 px and fade in, 20 ms apart; rows past the sixth share the last step. Only the
+     * popup's own entrance staggers: pages reached by navigation arrive as one block with the slide.
+     */
+    .media-menu-popup[data-starting-style] .media-menu-content > :is(.media-menu-item, .media-menu-radio-item, .media-menu-back-item),
+    .media-menu-popup[data-starting-style] .media-menu-content > .media-menu-radio-group > .media-menu-radio-item {
+      opacity: 0;
+      translate: 0 4px;
+    }
+
+    :is(.media-menu-content > *, .media-menu-radio-group > *):nth-child(2 of :is(.media-menu-item, .media-menu-radio-item, .media-menu-back-item):not([hidden])) { --ws-row-delay: 20ms; }
+    :is(.media-menu-content > *, .media-menu-radio-group > *):nth-child(3 of :is(.media-menu-item, .media-menu-radio-item, .media-menu-back-item):not([hidden])) { --ws-row-delay: 40ms; }
+    :is(.media-menu-content > *, .media-menu-radio-group > *):nth-child(4 of :is(.media-menu-item, .media-menu-radio-item, .media-menu-back-item):not([hidden])) { --ws-row-delay: 60ms; }
+    :is(.media-menu-content > *, .media-menu-radio-group > *):nth-child(5 of :is(.media-menu-item, .media-menu-radio-item, .media-menu-back-item):not([hidden])) { --ws-row-delay: 80ms; }
+    :is(.media-menu-content > *, .media-menu-radio-group > *):nth-child(n + 6 of :is(.media-menu-item, .media-menu-radio-item, .media-menu-back-item):not([hidden])) { --ws-row-delay: 100ms; }
+
+    .media-tooltip-shortcut,
+    .media-time-slider-preview-label media-slider-value {
+      font-family: var(--ws-font-numeric);
+      font-variant-numeric: tabular-nums;
+      font-size: var(--ws-text-xs);
+      line-height: var(--ws-line-xs);
+    }
+
+    .media-menu-popup,
+    .media-dialog-description {
+      font-size: var(--ws-text-md);
+      line-height: var(--ws-line-md);
+    }
+    /*
+     * Settings pages, matched to the Default skin's own navigation (the clip in the Video.js v10 skin design notes):
+     * going in, the page you leave slides a full page width toward the inline start while the next slides in from
+     * the inline end, both blurring 8 px when off-centre; going back reverses it. No fade: the popup's overflow
+     * clips the pages, so for a moment both show side by side, softened. Pages and the panel's resize (tweened in
+     * motion.ts) share one clock: --ws-dur-nav with --ws-ease-nav, a fast-start ease-out.
+     * Each page keeps its own natural width (at least the panel's), so rows never re-truncate as the panel resizes,
+     * and caps its height at the target page height so no scrollbar flashes mid-resize.
+     */
+    .media-menu-content {
+      --ws-page-shift: 100%;
+      min-inline-size: 100%;
+      inline-size: max-content;
+      max-inline-size: var(--media-menu-available-width, 100%);
+      max-block-size: min(var(--media-menu-height, 100%), var(--media-menu-available-height, calc(var(--media-spacing) * 56)), calc(var(--media-spacing) * 56));
+      clip-path: none;
+      filter: none;
+      transform: none;
+      transition:
+        transform var(--ws-dur-nav) var(--ws-ease-nav),
+        filter var(--ws-dur-nav) var(--ws-ease-nav);
+    }
+    .media-menu-content:dir(rtl) { --ws-page-shift: -100%; }
+    .media-menu-content:not([data-submenu])[data-child-open],
+    .media-menu-content[data-submenu]:is([data-starting-style], [data-ending-style]) {
+      clip-path: none;
+      filter: blur(8px);
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .media-menu-content:not([data-submenu])[data-child-open] { transform: translateX(calc(-1 * var(--ws-page-shift))); }
+    .media-menu-content[data-submenu]:is([data-starting-style], [data-ending-style]) { transform: translateX(var(--ws-page-shift)); }
+    /* A page that appears with the popup itself (opening) or leaves with it (closing) rides the popup's own motion. */
+    .media-menu-popup:is([data-starting-style], [data-ending-style]) .media-menu-content { transition: none; }
+
+    .ws-panel-heading,
+    .media-dialog-title {
+      font-size: var(--ws-text-lg);
+      line-height: var(--ws-line-lg);
+    }
+
+    .media-menu-group-label,
+    .ws-callout-prefix {
+      font-size: var(--ws-text-xs);
+      line-height: var(--ws-line-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--ws-ink-muted);
+    }
+
+    /* ---------- Responsive ---------- */
+    @container media-root (width < 40rem) {
+      .video-controls-end { position: relative; }
+
+      /* Keep an anchor for Places and Overflight when opened from Settings. */
+      .ws-chapter-controls .ws-chapter-trigger {
+        position: absolute;
+        inset-inline-start: 0;
+        visibility: hidden;
+      }
+
+      .ws-places-popup {
+        --ws-places-limit: min(var(--ws-places-height, 50vh), var(--media-popover-available-height, 50vh));
+        /* The compact Places anchor is deliberately hidden. */
+        position-visibility: always;
+      }
+
+      .video-controls-end .ws-overview-trigger,
+      .media-airplay-button,
+      .media-cast-button,
+      .media-pip-button,
+      .media-captions-button {
+        display: none;
+      }
+    }
+
+    @container media-root (width < 30rem) {
+      .video-controls-group,
+      .ws-chapter-controls {
+        gap: 0;
+      }
+
+      .media-time-group { gap: var(--ws-space-4); }
+
+      .video-controls-center {
+        top: calc((100% - var(--ws-band-height) - var(--ws-rail-inset)) / 2 + 8px);
+      }
+    }
+
+    @media (pointer: coarse) {
+      :is(.ws-aurora-setting, .ws-compact-action) {
+        min-block-size: var(--ws-control);
+      }
+
+      @container media-root (width < 20rem) {
+        .media-time-duration-value,
+        .media-time-separator {
+          display: none;
+        }
+      }
+    }
+
+    /* ---------- Preferences ---------- */
+    :scope[data-orbit]:not([data-daylight-transition]) {
+      --ws-palette-duration: 0ms;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      :scope {
+        --ws-palette-duration: 0ms;
+      }
+
+      .video-controls-content :is(.video-controls-bottom, .video-controls-top, .video-controls-row > *),
+      .media-time-slider-preview,
+      .media-time-slider .ws-iss,
+      .media-button::before,
+      .media-button::after {
+        transform: none !important;
+      }
+
+      .video-controls-row > *,
+      .media-menu-content > *,
+      .media-menu-radio-group > * {
+        --ws-island-delay: 0ms !important;
+        --ws-row-delay: 0ms !important;
+        translate: none !important;
+      }
+
+      .media-button > * { scale: none !important; }
+
+      :is(.media-tooltip-popup, .media-menu-popup, .ws-places-popup, .media-volume-popover-popup, .media-dialog-popup),
+      :is(.media-tooltip-popup, .media-menu-popup, .ws-places-popup, .media-volume-popover-popup, .media-dialog-popup)[data-starting-style] {
+        transform: translate(var(--ws-popup-base-x), var(--ws-popup-base-y));
+        transition: none;
+      }
+
+      .media-menu-content,
+      .media-menu-content:is([data-child-open], [data-submenu]) {
+        transition: none;
+      }
+
+      .ws-place-current,
+      .ws-place-previous,
+      .media-indicator,
+      .media-dialog-backdrop { transition: none; }
+      .ws-place-current,
+      .media-indicator[data-starting-style] { transform: none; }
+
+      .ws-icon *,
+      .media-button,
+      .ws-chapter-button,
+      [data-item],
+      .media-time-toggle {
+        animation: none !important;
+        transition: none !important;
+      }
+
+      .media-button:active,
+      .ws-chapter-button:active,
+      [data-item]:active,
+      .media-time-toggle:active,
+      .ws-seek-arrow,
+      .ws-corner { transform: none !important; }
+
+      :scope[data-aurora] ws-aurora {
+        animation: none;
+        opacity: 0.55;
+      }
+    }
+
+    @media (prefers-contrast: more) {
+      :scope {
+        --ws-hairline: var(--ws-ink);
+        --ws-hover-disc: var(--media-button-highlight);
+      }
+    }
+
+    /* Forced colours: hover fills the whole button with Highlight (below), so the translucent disc steps aside. */
+    @media (forced-colors: active) and (hover: hover) and (pointer: fine) {
+      .media-button::before { display: none; }
+    }
+
+    @media (forced-colors: active) {
+      .ws-play-half {
+        background: CanvasText;
+        forced-color-adjust: none;
+      }
+
+      :scope[data-aurora] ws-aurora {
+        display: none;
+      }
+
+      .video-controls-row > *,
+      ws-overview,
+      .ws-callout-label,
+      .ws-places-popup,
+      .media-indicator {
+        border: 1px solid CanvasText;
+      }
+
+      .media-time-slider-track::before {
+        background: GrayText;
+        border: 0;
+      }
+
+      .video-controls-slider-row::before,
+      .media-time-slider-track::after { display: none; }
+
+      .ws-iss-knockout { fill: Canvas; stroke: Canvas; }
+      .ws-iss { filter: none; }
+      .ws-icon { forced-color-adjust: none; color: inherit; }
+      .media-button:is(:hover, [aria-expanded="true"], [aria-pressed="true"]),
+      [data-item]:hover,
+      .ws-chapter-button:hover { outline: 1px solid Highlight; }
+
+      .ws-iss-body,
+      .ws-iss-arrays {
+        forced-color-adjust: none;
+        fill: CanvasText;
+      }
+
+      .video-controls-bottom .media-button {
+        color: ButtonText;
+      }
+
+      .media-button:is(:hover, :focus-visible, [aria-expanded="true"]) {
+        background-color: Highlight;
+        color: HighlightText;
+      }
+
+      /* Volume popover: outlined island, outlined track, Highlight fill and thumb. */
+      .media-volume-popover-popup { border: 1px solid CanvasText; }
+
+      .media-volume-slider-track {
+        forced-color-adjust: none;
+        background-color: Canvas;
+        border: 1px solid CanvasText;
+      }
+
+      .media-volume-slider-fill {
+        forced-color-adjust: none;
+        background-color: Highlight;
+      }
+
+      .media-volume-slider-thumb {
+        forced-color-adjust: none;
+        background-color: Highlight;
+        border: 1px solid CanvasText;
+      }
+
+      .media-volume-slider-thumb:focus-visible,
+      .media-volume-slider:focus-visible .media-volume-slider-thumb { outline: 2px solid Highlight; }
+
+      /* Hotkey indicator bar: system colours and an outline, so the empty part still shows. */
+      .ws-volume-level {
+        background: linear-gradient(var(--ws-volume-dir, to right), Highlight var(--ws-volume-bar), GrayText 0);
+        outline: 1px solid CanvasText;
+      }
+
+      /* Overflight timeline: GrayText line, outlined nodes, Highlight for passed and current. */
+      .ws-chapter-button::before { forced-color-adjust: none; --ws-route-done: Highlight; --ws-route-todo: GrayText; }
+
+      .ws-chapter-button::after {
+        forced-color-adjust: none;
+        border-color: CanvasText;
+        background: Canvas;
+      }
+
+      .ws-chapter-button[data-passed]::after {
+        border-color: Highlight;
+        background: Highlight;
+      }
+
+      .ws-chapter-button[aria-current="true"]::after {
+        border-color: Canvas;
+        background: Highlight;
+        box-shadow: 0 0 0 var(--ws-route-line) Highlight;
+      }
+
+      .ws-chapter-button[aria-current="true"]:not(:focus-visible) {
+        outline: 1px solid Highlight;
+        outline-offset: -1px;
+      }
+
+      /* Keyboard chip: outlined in a system colour wherever it sits. */
+      .media-tooltip-shortcut:not(:empty) { border-color: ButtonText; }
+    }
+
+    /* ---------- Picture-in-picture placeholder ----------
+     * The floating window is drawn by the browser. While it is open the picture area shows a dimmed scrim and one
+     * glass card. PiP is detected from the `data-pip` attribute that every <media-pip-button> carries. */
+
+    .ws-pip-scrim {
+      display: none;
+      position: absolute;
+      inset: var(--ws-picture-top, 0px) var(--ws-picture-right, 0px) var(--ws-picture-base) var(--ws-picture-left, 0px);
+      z-index: 25;
+      box-sizing: border-box;
+      place-items: center;
+      padding: var(--ws-space-16);
+      padding-block-end: calc(var(--ws-band-height) + var(--ws-rail-inset) + var(--ws-space-8));
+      border-radius: var(--media-video-border-radius, var(--ws-r-panel));
+      background: rgb(0 0 0 / .55);
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+      pointer-events: none;
+      container: ws-pip / size;
+    }
+
+    :scope:has(media-pip-button[data-pip]) .ws-pip-scrim {
+      display: grid;
+      animation: ws-pip-fade-in var(--ws-dur) linear;
+    }
+
+    .ws-pip-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--ws-space-12);
+      box-sizing: border-box;
+      max-width: min(100%, calc(var(--ws-unit) * 80));
+      max-height: 100%;
+      padding: var(--ws-space-16) var(--ws-space-24);
+      text-align: center;
+      background: var(--ws-rail-wash), var(--ws-surface);
+      -webkit-backdrop-filter: var(--ws-glass-filter);
+      backdrop-filter: var(--ws-glass-filter);
+      color: var(--ws-ink);
+      border-radius: var(--ws-r-panel);
+      box-shadow: var(--ws-glass-shadow);
+      pointer-events: auto;
+    }
+
+    :scope:has(media-pip-button[data-pip]) .ws-pip-card {
+      animation: ws-pip-card-in var(--ws-morph-duration) var(--ws-ease-spring) 40ms backwards;
+    }
+
+    .ws-pip-glyph {
+      width: calc(var(--ws-unit) * 7);
+      height: calc(var(--ws-unit) * 7);
+      color: var(--ws-ink);
+    }
+
+    .ws-pip-title {
+      margin: 0;
+      font-size: var(--ws-text-lg);
+      font-weight: 600;
+      line-height: 1.3;
+      text-wrap: balance;
+    }
+
+    .ws-pip-return {
+      width: auto;
+      min-width: 0;
+      height: var(--ws-control);
+      padding-inline: var(--ws-space-16);
+      border-radius: var(--ws-r-pill);
+      font-size: var(--ws-text-md);
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      background-color: var(--ws-accent);
+      color: var(--ws-accent-ink);
+    }
+
+    .ws-pip-return:is(:hover, :focus-visible) {
+      background-color: var(--ws-accent);
+      color: var(--ws-accent-ink);
+      filter: brightness(1.12);
+    }
+
+    @media (pointer: coarse) {
+      .ws-pip-return { min-height: 44px; }
+    }
+
+    /* Narrow or short pictures: tighter card, and the glyph yields first. */
+    @container ws-pip (width < 24rem) {
+      .ws-pip-card { padding: var(--ws-space-12) var(--ws-space-16); gap: var(--ws-space-8); }
+      .ws-pip-title { font-size: var(--ws-text-md); }
+    }
+
+    @container ws-pip (height < 14rem) {
+      .ws-pip-glyph { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      :scope:has(media-pip-button[data-pip]) .ws-pip-card {
+        animation: ws-pip-fade-in var(--ws-dur-fast) linear;
+      }
+    }
+
+    @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+      .ws-pip-scrim {
+        background: rgb(0 0 0 / .8);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+
+      .ws-pip-card {
+        background: var(--ws-band);
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+    }
+
+    @media (forced-colors: active) {
+      .ws-pip-scrim { background: Canvas; }
+
+      .ws-pip-card {
+        background: Canvas;
+        color: CanvasText;
+        border: 1px solid CanvasText;
+        box-shadow: none;
+      }
+
+      .ws-pip-return {
+        background-color: ButtonFace;
+        color: ButtonText;
+        border: 1px solid ButtonText;
+        filter: none;
+      }
+
+      .ws-pip-return:is(:hover, :focus-visible) {
+        background-color: Highlight;
+        color: HighlightText;
+        filter: none;
+      }
+
+      .ws-pip-return:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
+    }
+  }
+}

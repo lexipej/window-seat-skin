@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Window Seat spec sheet</title>
+  </head>
+  <body>
+    <media-container class="sheet-document">
+    <main id="sheet" class="media-skin" data-theme="window-seat" data-preset="video" data-daylight="day">
+      <header class="sheet-header">
+        <h1>Window Seat spec sheet</h1>
+        <div class="sheet-options">
+          <label>Palette
+            <select id="palette"><option>Day</option><option>Twilight</option><option>Night</option></select>
+          </label>
+          <label>Backdrop
+            <select id="backdrop"><option>Black</option><option>White</option><option>Footage</option></select>
+          </label>
+          <label><input id="slow" type="checkbox"> Slow motion ×0.2</label>
+          <button type="button" id="animate">Play all animations</button>
+        </div>
+        <div class="sheet-options" role="group" aria-label="Animation scrubber">
+          <button type="button" id="toggle-states" aria-pressed="false">Toggle states</button>
+          <span>Animation progress</span>
+          <button type="button" data-progress="0">0 %</button>
+          <button type="button" data-progress="25">25 %</button>
+          <button type="button" data-progress="50">50 %</button>
+          <button type="button" data-progress="75">75 %</button>
+          <button type="button" data-progress="100">100 %</button>
+          <output id="scrub-status">No animations held</output>
+        </div>
+      </header>
+      <section aria-labelledby="icons-title"><h2 id="icons-title">Icons at 1× and 2×</h2><div id="icons" class="sheet-grid"></div></section>
+      <section aria-labelledby="controls-title"><h2 id="controls-title">Controls</h2><div id="controls" class="sheet-grid"></div><div id="layouts"></div></section>
+      <section aria-labelledby="popups-title"><h2 id="popups-title">Popups and feedback</h2><div id="popups" class="sheet-grid"></div></section>
+      <section aria-labelledby="states-title"><h2 id="states-title">Player states</h2><div id="states" class="sheet-grid"></div></section>
+      <section aria-labelledby="markers-title"><h2 id="markers-title">Progress markers</h2><div id="markers" class="sheet-grid"></div></section>
+      <section aria-labelledby="strip-title"><h2 id="strip-title">Orbit strip</h2><div id="strips"></div></section>
+    </main>
+    </media-container>
+    <script type="module" src="/src/sheet/main.ts"></script>
+  </body>
+</html>
