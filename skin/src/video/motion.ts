@@ -91,18 +91,56 @@ const ROW_ICON_MOTION: { parts: string; keyframes: Keyframe[]; duration: number;
   },
 ];
 
-export function playRowIcon(row: Element) {
-  const icon = row.querySelector('.media-menu-trigger-icon');
-  if (!icon || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  // A sweep back onto a row that is still playing lets the running pass finish rather than restarting it.
-  if (icon.getAnimations({ subtree: true }).some((animation) => animation.id === 'ws-row-icon' && animation.playState === 'running')) return;
-  icon.animate(ROW_ICON_POP, { duration: 460, easing: EASE_OUT }).id = 'ws-row-icon';
-  for (const { parts, keyframes, duration, delay = 0, stagger = 0, easing } of ROW_ICON_MOTION) {
+type IconMotion = (typeof ROW_ICON_MOTION)[number] & { composite?: CompositeOperation };
+
+const SPIN_ABOUT_CENTRE = { transformBox: 'view-box', transformOrigin: '10px 10px' };
+
+/*
+ * Hover one-shots for the control-bar icons, in the same language as the settings rows. Parts that already hold a
+ * CSS transform for a state (gear, waves, picture-in-picture window, corners) add to it, so each lands back on its pose.
+ */
+const barIconMotion = (seekTurn: number, pipNudge: string): IconMotion[] => [
+  { parts: '.ws-seek-arrow', keyframes: [{ transform: 'none' }, { transform: `rotate(${seekTurn}deg)`, offset: .45 }, { transform: 'none' }], duration: 460, easing: 'ease-in-out' },
+  { parts: '.ws-wave', keyframes: [{ transform: 'none' }, { transform: 'translateX(1.5px)' }, { transform: 'none' }], duration: 420, stagger: 70, easing: 'ease-in-out', composite: 'add' },
+  ...ROW_ICON_MOTION.filter(({ parts }) => /captions|flight/.test(parts)),
+  {
+    parts: '.ws-globe-orbit',
+    keyframes: [{ ...SPIN_ABOUT_CENTRE, transform: 'none' }, { ...SPIN_ABOUT_CENTRE, transform: 'rotate(360deg)' }],
+    duration: 900,
+    easing: EASE_MORPH,
+  },
+  { parts: '.ws-gear', keyframes: [{ transform: 'none' }, { transform: 'rotate(50deg)', offset: .45 }, { transform: 'none' }], duration: 620, easing: 'ease-in-out', composite: 'add' },
+  { parts: '.ws-pip-window', keyframes: [{ transform: 'none' }, { transform: `translate(${pipNudge})`, offset: .45 }, { transform: 'none' }], duration: 560, easing: 'ease-in-out', composite: 'add' },
+  { parts: '.ws-icon-fullscreen > .ws-tone-2', keyframes: [{ transform: 'none' }, { transform: 'scale(1.22)', offset: .4 }, { transform: 'none' }], duration: 460, easing: EASE_MORPH },
+];
+
+const BAR_ICON_POP = [{ transform: 'none' }, { transform: 'scale(1.15)', offset: .4 }, { transform: 'none' }];
+
+function playIcon(icon: Element, id: string, pop: Keyframe[], motion: IconMotion[]) {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  // A sweep back onto an icon that is still playing lets the running pass finish rather than restarting it.
+  if (icon.getAnimations({ subtree: true }).some((animation) => animation.id === id && animation.playState === 'running')) return;
+  icon.animate(pop, { duration: 460, easing: EASE_OUT }).id = id;
+  for (const { parts, keyframes, duration, delay = 0, stagger = 0, easing, composite } of motion) {
     icon.querySelectorAll(parts).forEach((part, index) => {
-      const animation = part.animate(keyframes, { duration, delay: delay + index * stagger, easing, fill: 'backwards' });
-      animation.id = 'ws-row-icon';
+      const animation = part.animate(keyframes, { duration, delay: delay + index * stagger, easing, composite, fill: 'backwards' });
+      animation.id = id;
     });
   }
+}
+
+export function playRowIcon(row: Element) {
+  const icon = row.querySelector('.media-menu-trigger-icon');
+  if (icon) playIcon(icon, 'ws-row-icon', ROW_ICON_POP, ROW_ICON_MOTION);
+}
+
+export function playBarIcon(button: Element) {
+  const icon = button.querySelector(':scope > .ws-icon, :scope > * > .ws-icon');
+  if (!icon || button.hasAttribute('data-disabled')) return;
+  playIcon(icon, 'ws-bar-icon', BAR_ICON_POP, barIconMotion(
+    button.getAttribute('seconds')?.startsWith('-') ? -40 : 40,
+    button.hasAttribute('data-pip') ? '-5px, -3px' : '5px, 3px',
+  ));
 }
 
 function positionOffset(value: string, space: number) {
@@ -190,6 +228,12 @@ class MotionElement extends HTMLElement {
     for (const type of ['pointerup', 'pointercancel']) {
       container.ownerDocument.addEventListener(type, () => slider.removeAttribute('data-ws-drag'), listenerOptions);
     }
+    // Mouse only: a touch tap toggles the controls, and pens and keyboards get no hover.
+    container.addEventListener('pointerover', (event) => {
+      if (event.pointerType !== 'mouse') return;
+      const button = (event.target as Element).closest('.media-button');
+      if (button && !button.contains(event.relatedTarget as Node | null)) playBarIcon(button);
+    }, listenerOptions);
     container.addEventListener('click', animateSeek, listenerOptions);
     container.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') animateSeek(event);
