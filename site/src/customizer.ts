@@ -154,7 +154,7 @@ function render() {
   snippet.textContent = [
     `<video-player${attributes ? ' ' + attributes : ''}></video-player>`,
     '',
-    `import { createWindowSeatMarkup } from './skin/video/skin';`,
+    `import { createWindowSeatMarkup } from './skin/src/video/skin';`,
     `player.innerHTML = createWindowSeatMarkup();`,
     `player.querySelector('media-container').prepend(video);`,
     '',
