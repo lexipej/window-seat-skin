@@ -1,0 +1,29 @@
+# Keeps the demo's Mux playlists in the CDN cache, so the first viewer after a quiet spell
+# doesn't wait on a cold manifest. Fetches each pass's master, rendition playlists and opening segments.
+name: Warm Mux playlists
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  warm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Fetch playlists and opening segments
+        run: |
+          ids="OMqaVB01nWT7iGK2jutdmsAZykx1U7SvOmTCoxVmxJE4 1kG49M02781QDM00hwI6ep1PgFyT8OUSD8cfsAlFvBEWQ PMZDncueENu7UBSbs024lFyq6bZiAP92TDhjdDZIpMss enqF7Kn02rTtKprBBbkfh2Mp8zf6cV2sUxuqRE01JAhXo o6OqGLnHknCtZFpijtBgoUBgifHDcrMTaK01j1QiKo1U OqVRzzVvj4XroPtt02UFbPXujdYfMwAWRkTpNdXZV35s"
+          get() { curl -s --max-time 90 -o "${2:-/dev/null}" -w "%{http_code} %{time_total}s ${1%%\?*}\n" "$1"; }
+          warm() {
+            dir=$(mktemp -d)
+            get "https://stream.mux.com/$1.m3u8" "$dir/master"
+            sed -nE 's/.*URI="([^"]+)".*/\1/p; /^https/p' "$dir/master" | while read -r url; do
+              get "$url" "$dir/rendition"
+              { sed -nE 's/.*URI="([^"]+)".*/\1/p' "$dir/rendition" | head -1; grep '^https' "$dir/rendition" | head -2; } | while read -r part; do get "$part"; done
+            done
+          }
+          for id in $ids; do warm "$id" > "log-$id.txt" & done
+          wait
+          cat log-*.txt
