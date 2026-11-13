@@ -56,7 +56,9 @@ export function markInteracted(root: Element) {
 
 const EASE_OUT = 'cubic-bezier(.3, 0, .2, 1)';
 const EASE_MORPH = 'cubic-bezier(.6, 0, .3, 1)';
-const RIPPLE = [{ transform: 'none' }, { transform: 'translateY(-2.5px)' }, { transform: 'none' }];
+const RIPPLE = [{ transform: 'none' }, { transform: 'translateY(-3.5px)' }, { transform: 'none' }];
+// Every row icon also pops as a whole, so the response reads at 20 px even where the part motion is small.
+const ROW_ICON_POP = [{ transform: 'none' }, { transform: 'scale(1.3)', offset: .4 }, { transform: 'none' }];
 
 /*
  * One-shots for settings-row icons, played when a row gains the highlight. They run on the Web Animations API so a
@@ -64,22 +66,22 @@ const RIPPLE = [{ transform: 'none' }, { transform: 'translateY(-2.5px)' }, { tr
  * second pose while highlighted (Quality knobs, picture-in-picture window) are CSS transitions instead.
  */
 const ROW_ICON_MOTION: { parts: string; keyframes: Keyframe[]; duration: number; delay?: number; stagger?: number; easing: string }[] = [
-  { parts: '.ws-speech-line', keyframes: [{ transform: 'scaleX(0)' }, { transform: 'none' }], duration: 220, stagger: 130, easing: EASE_OUT },
+  { parts: '.ws-speech-line', keyframes: [{ transform: 'scaleX(0)' }, { transform: 'none' }], duration: 360, stagger: 180, easing: EASE_OUT },
   {
     parts: '.ws-speed-needle',
     keyframes: [
       { transform: 'none', easing: EASE_OUT },
       // The needle rests right of centre, so it sweeps back across the dial and overshoots its rest on return.
-      { transform: 'rotate(-60deg)', offset: .45, easing: 'ease-in-out' },
-      { transform: 'rotate(6deg)', offset: .8, easing: 'ease-in-out' },
+      { transform: 'rotate(-90deg)', offset: .45, easing: 'ease-in-out' },
+      { transform: 'rotate(10deg)', offset: .8, easing: 'ease-in-out' },
       { transform: 'none' },
     ],
-    duration: 440,
+    duration: 760,
     easing: 'linear',
   },
-  { parts: '.ws-captions-c', keyframes: [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], duration: 300, stagger: 60, easing: EASE_MORPH },
-  { parts: '.ws-curtains > path', keyframes: RIPPLE, duration: 300, stagger: 60, easing: 'ease-in-out' },
-  { parts: '.ws-flight-route', keyframes: [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], duration: 340, easing: EASE_MORPH },
+  { parts: '.ws-captions-c', keyframes: [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], duration: 520, stagger: 140, easing: EASE_MORPH },
+  { parts: '.ws-curtains > path', keyframes: RIPPLE, duration: 520, stagger: 110, easing: 'ease-in-out' },
+  { parts: '.ws-flight-route', keyframes: [{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], duration: 560, easing: EASE_MORPH },
   {
     parts: '.ws-flight-pin',
     keyframes: [{ transform: 'none' }, { transform: 'translateY(-2px)', offset: .4 }, { transform: 'translateY(.4px)', offset: .8 }, { transform: 'none' }],
@@ -94,6 +96,7 @@ export function playRowIcon(row: Element) {
   if (!icon || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   // A sweep back onto a row that is still playing lets the running pass finish rather than restarting it.
   if (icon.getAnimations({ subtree: true }).some((animation) => animation.id === 'ws-row-icon' && animation.playState === 'running')) return;
+  icon.animate(ROW_ICON_POP, { duration: 460, easing: EASE_OUT }).id = 'ws-row-icon';
   for (const { parts, keyframes, duration, delay = 0, stagger = 0, easing } of ROW_ICON_MOTION) {
     icon.querySelectorAll(parts).forEach((part, index) => {
       const animation = part.animate(keyframes, { duration, delay: delay + index * stagger, easing, fill: 'backwards' });
